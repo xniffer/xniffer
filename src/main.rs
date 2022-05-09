@@ -20,14 +20,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 		.map(|x| PathBuf::from(x))
 		.collect();
 
+	let files: Vec<PathBuf> = files_input.into_par_iter()
+		.map(|x| convert_folder_input_into_files_within(x))
+		.collect();
+
 	// Logic
-	files_input.par_iter().for_each(|x| parse(x));
+	files.par_iter().for_each(|x| parse(x));
 
 	Ok(())
 }
 
 fn parse(path: &PathBuf) {
-	//println!("Parsing {}", &path.display());
 	let meta = rexiv2::Metadata::new_from_path(&path).unwrap();
 	let mut data: Vec<Data> = Vec::new();
 
@@ -79,6 +82,18 @@ fn parse(path: &PathBuf) {
 	}
 
 	println!("{}\n{table}", path.display());
+}
+
+fn convert_folder_input_into_files_within(input: PathBuf) -> Vec<PathBuf>
+{
+	if input.is_file()
+	{
+		vec!(input)
+	}
+	else
+	{
+		vec!(input)
+	}
 }
 
 #[derive(std::clone::Clone)]
