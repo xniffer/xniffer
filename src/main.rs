@@ -8,7 +8,7 @@ use std::fs;
 use std::path::PathBuf;
 
 fn main() -> Result<(), Box<dyn Error>> {
-	println!("--- xniffer v{} ---", std::env!("CARGO_PKG_VERSION"));
+	println!("⎯⎯⎯ xniffer v{} ⎯⎯⎯", std::env!("CARGO_PKG_VERSION"));
 	let args: Vec<String> = std::env::args().collect();
 
 	if args.len() < 2 {
