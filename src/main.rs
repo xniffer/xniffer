@@ -15,13 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 		panic!("No files provided!");
 	}
 
-	// Assuming the last argument is the file
-	let files_input: Vec<PathBuf> = Vec::from(&args[1..])
-		.into_par_iter()
-		.map(|x| PathBuf::from(x))
-		.collect();
-
-	let files: Vec<PathBuf> = convert_folder_input_into_files_within(files_input);
+	let files: Vec<String> = convert_folder_input_into_files_within(Vec::from(&args[1..]));
 
 	// Logic
 	files.par_iter().for_each(|x| parse(x));
@@ -29,12 +23,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 	Ok(())
 }
 
-fn parse(path: &PathBuf) {
+fn parse(name: &String) {
 	// Try
-	let metadata = rexiv2::Metadata::new_from_path(&path);
+	let metadata = rexiv2::Metadata::new_from_path(name);
 	if metadata.is_err()
 	{
-		panic!("{} Could not be parsed.", path.display());
+		panic!("{} Could not be parsed.", name);
 	}
 
 	let meta = metadata.unwrap();
@@ -92,7 +86,7 @@ fn parse(path: &PathBuf) {
 	let mut table = Table::new();
 	table
 		.set_header(vec!["Tag", "Value"])
-		.set_header(vec![path.display()])
+		.set_header(vec![name])
 		.load_preset(comfy_table::presets::UTF8_FULL)
 		.apply_modifier(comfy_table::modifiers::UTF8_ROUND_CORNERS)
 		.set_content_arrangement(comfy_table::ContentArrangement::Dynamic)
@@ -112,17 +106,17 @@ fn parse(path: &PathBuf) {
 	println!("{table}");
 }
 
-fn convert_folder_input_into_files_within(input: Vec<PathBuf>) -> Vec<PathBuf> {
-	let mut x: Vec<PathBuf> = Vec::new();
+fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
+	let mut x: Vec<String> = Vec::new();
 	for entry in input {
-		if entry.is_file() {
+		if PathBuf::from(&entry).is_file() {
 			x.push(entry)
 		} else {
 			// TODO
 			let paths = fs::read_dir(entry).unwrap();
 
 			for path in paths {
-				x.push(path.unwrap().path());
+				x.push(path.unwrap().path().into_os_string().into_string().unwrap());
 			}
 		};
 	}
@@ -136,6 +130,7 @@ struct Data {
 	value: Option<String>,
 }
 
+// https://stackoverflow.com/questions/38461429/how-can-i-truncate-a-string-to-have-at-most-n-characters
 fn truncate(s: &str, max_chars: usize) -> &str {
     match s.char_indices().nth(max_chars) {
         None => &s,
