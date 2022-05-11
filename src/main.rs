@@ -28,7 +28,8 @@ fn parse(name: &String) {
 	let metadata = rexiv2::Metadata::new_from_path(name);
 	if metadata.is_err()
 	{
-		panic!("{} Could not be parsed.", name);
+		println!("{} Could not be parsed.", name);
+		return;
 	}
 
 	let meta = metadata.unwrap();
