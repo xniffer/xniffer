@@ -4,6 +4,7 @@ extern crate rayon;
 use comfy_table::Table;
 use rayon::prelude::*;
 use std::error::Error;
+use std::fs;
 use std::path::PathBuf;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -20,9 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 		.map(|x| PathBuf::from(x))
 		.collect();
 
-	let files: Vec<PathBuf> = files_input.into_par_iter()
-		.map(|x| convert_folder_input_into_files_within(x))
-		.collect();
+	let files: Vec<PathBuf> = convert_folder_input_into_files_within(files_input);
 
 	// Logic
 	files.par_iter().for_each(|x| parse(x));
@@ -31,16 +30,33 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn parse(path: &PathBuf) {
-	let meta = rexiv2::Metadata::new_from_path(&path).unwrap();
+	// Try
+	let metadata = rexiv2::Metadata::new_from_path(&path);
+	if metadata.is_err()
+	{
+		panic!("{} Could not be parsed.", path.display());
+	}
+
+	let meta = metadata.unwrap();
 	let mut data: Vec<Data> = Vec::new();
 
 	// Exif tags
 	if meta.has_exif() {
 		let exifs = meta.get_exif_tags().unwrap();
 		for e in exifs {
+			if meta.get_tag_string(&e).is_err() {
+				continue;
+			}
+
+			let tag = meta.get_tag_string(&e).unwrap_or(String::new()).to_string();
+
 			data.push(Data {
 				tag: e.clone(),
-				value: Some(meta.get_tag_string(&e).unwrap_or(String::new()).to_string()),
+				value: Some(if tag.len() > 80 {
+					truncate ( tag.as_ref(), 40).to_owned() + "..."
+				} else {
+					tag
+				}),
 			});
 		}
 	};
@@ -48,6 +64,10 @@ fn parse(path: &PathBuf) {
 	if meta.has_iptc() {
 		let iptcs = meta.get_iptc_tags().unwrap();
 		for e in iptcs {
+			if meta.get_tag_string(&e).is_err() {
+				continue;
+			}
+
 			data.push(Data {
 				tag: e.clone(),
 				value: Some(meta.get_tag_string(&e).unwrap_or(String::new()).to_string()),
@@ -58,6 +78,10 @@ fn parse(path: &PathBuf) {
 	if meta.has_xmp() {
 		let xmps = meta.get_xmp_tags().unwrap();
 		for e in xmps {
+			if meta.get_tag_string(&e).is_err() {
+				continue;
+			}
+
 			data.push(Data {
 				tag: e.clone(),
 				value: Some(meta.get_tag_string(&e).unwrap_or(String::new()).to_string()),
@@ -68,12 +92,16 @@ fn parse(path: &PathBuf) {
 	let mut table = Table::new();
 	table
 		.set_header(vec!["Tag", "Value"])
+		.set_header(vec![path.display()])
 		.load_preset(comfy_table::presets::UTF8_FULL)
 		.apply_modifier(comfy_table::modifiers::UTF8_ROUND_CORNERS)
 		.set_content_arrangement(comfy_table::ContentArrangement::Dynamic)
 		.set_table_width(
 			termsize::get()
-				.unwrap_or(termsize::Size { rows: 50, cols: 150 })
+				.unwrap_or(termsize::Size {
+					rows: 50,
+					cols: 150,
+				})
 				.cols,
 		);
 
@@ -81,23 +109,36 @@ fn parse(path: &PathBuf) {
 		table.add_row(vec![entry.tag, entry.value.unwrap_or(String::new())]);
 	}
 
-	println!("{}\n{table}", path.display());
+	println!("{table}");
 }
 
-fn convert_folder_input_into_files_within(input: PathBuf) -> Vec<PathBuf>
-{
-	if input.is_file()
-	{
-		vec!(input)
+fn convert_folder_input_into_files_within(input: Vec<PathBuf>) -> Vec<PathBuf> {
+	let mut x: Vec<PathBuf> = Vec::new();
+	for entry in input {
+		if entry.is_file() {
+			x.push(entry)
+		} else {
+			// TODO
+			let paths = fs::read_dir(entry).unwrap();
+
+			for path in paths {
+				x.push(path.unwrap().path());
+			}
+		};
 	}
-	else
-	{
-		vec!(input)
-	}
+
+	x
 }
 
 #[derive(std::clone::Clone)]
 struct Data {
 	tag: String,
 	value: Option<String>,
+}
+
+fn truncate(s: &str, max_chars: usize) -> &str {
+    match s.char_indices().nth(max_chars) {
+        None => &s,
+        Some((idx, _)) => &s[..idx],
+    }
 }
