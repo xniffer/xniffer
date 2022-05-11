@@ -9,6 +9,9 @@
 </div>
 
 ## About
+
+![Example image](example.jpg)
+
 Xniffer is a simple EXIF reader/sniffer built with [Rust](https://www.rust-lang.org/).
 It's meant to be a simple learning and performance exercise for me.
 
