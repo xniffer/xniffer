@@ -52,7 +52,7 @@ fn parse(name: &String) {
 						String::from_utf8(hex::decode(&tag).unwrap())
 							.unwrap_or(truncate(tag.as_ref(), 40).to_owned() + "...")
 					} else if try_string_of_bytes_to_string(&tag).is_ok() {
-						truncate(try_string_of_bytes_to_string(&tag).unwrap().as_ref(), 40).to_owned() + "...(raw)"
+						truncate(try_string_of_bytes_to_string(&tag).unwrap().as_ref(), 40).to_owned() + "[r]"
 					} else {
 						truncate(tag.as_ref(), 40).to_owned() + "..."
 					}
@@ -115,12 +115,13 @@ fn parse(name: &String) {
 }
 
 fn try_string_of_bytes_to_string(s: &String) -> Result<String, u8> {
-	let sep: Vec<u16> = s
+	let white_space_seperated = s
 		.split_whitespace()
-		.collect::<Vec<&str>>()
-		.iter()
-		.map(|f| f.parse::<u16>().unwrap_or(f))
-		.collect();
+		.collect::<Vec<&str>>();
+
+	let sep: Vec<u16> = white_space_seperated.iter()
+	.map(|f| f.parse::<u16>().unwrap())
+	.collect();
 
 	let x = decode_utf16(sep).map(|f| f.unwrap()).collect();
 

@@ -20,7 +20,7 @@
 				}
 			},
 			"args": [
-				"/home/reee/exif-samples/jpg"
+				"/home/reee/exif-samples/jpg/Fujifilm_FinePix_E500.jpg"
 			],
 			"cwd": "${workspaceFolder}"
 		},
