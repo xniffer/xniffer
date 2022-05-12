@@ -21,6 +21,8 @@ jobs:
         with:
             toolchain: stable
             components: rustfmt
+      - name: Install xmllint
+        run: sudo apt-get install gexiv2
       - name: Build
         uses: actions-rs/cargo@v1
         with:
