@@ -1,6 +1,8 @@
 extern crate comfy_table;
 extern crate rayon;
+extern crate clap;
 
+use clap::{Arg, Command};
 use comfy_table::Table;
 use rayon::prelude::*;
 use std::char::decode_utf16;
@@ -8,23 +10,42 @@ use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 
+const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
+const CARGO_PKG_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
+
 fn main() -> Result<(), Box<dyn Error>> {
 	println!("⎯⎯⎯ xniffer v{} ⎯⎯⎯", std::env!("CARGO_PKG_VERSION"));
-	let args: Vec<String> = std::env::args().collect();
 
-	if args.len() < 2 {
-		panic!("No files provided!");
-	}
+	let matches = Command::new("xniffer")
+		.version(CARGO_PKG_VERSION)
+		.author(CARGO_PKG_AUTHORS)
+		.about("A simple exif sniffer written in Rust")
+		.arg(Arg::new("PATHS")
+			.required(true)
+			.help("Specify paths")
+			.takes_value(true)
+			.multiple_values(true)
+		)
+		.arg(Arg::new("RAW")
+			.help("show raw data")
+			.short('r')
+			.long("raw")
+			.takes_value(false)
+		)
+		.after_help("https://github.com/3top1a/xniffer")
+		.get_matches();
 
-	let files: Vec<String> = convert_folder_input_into_files_within(Vec::from(&args[1..]));
+	let files: Vec<String> = convert_folder_input_into_files_within(
+		matches.values_of_t("PATHS").unwrap_or_else(|e| e.exit())
+	);
 
 	// Logic
-	files.par_iter().for_each(|x| parse(x));
+	files.par_iter().for_each(|x| parse(x, !matches.is_present("RAW")));
 
 	Ok(())
 }
 
-fn parse(name: &String) {
+fn parse(name: &String, show_raw: bool) {
 	// Try
 	let metadata = rexiv2::Metadata::new_from_path(name);
 	if metadata.is_err() {
@@ -47,7 +68,7 @@ fn parse(name: &String) {
 
 			data.push(Data {
 				tag: e.clone(),
-				value: Some(if tag.len() > 80 {
+				value: Some(if tag.len() > 80 && show_raw {
 					if hex::decode(&tag).is_ok() {
 						String::from_utf8(hex::decode(&tag).unwrap())
 							.unwrap_or(truncate(tag.as_ref(), 40).to_owned() + "...")
