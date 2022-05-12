@@ -3,6 +3,7 @@ extern crate rayon;
 
 use comfy_table::Table;
 use rayon::prelude::*;
+use std::char::decode_utf16;
 use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
@@ -26,8 +27,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 fn parse(name: &String) {
 	// Try
 	let metadata = rexiv2::Metadata::new_from_path(name);
-	if metadata.is_err()
-	{
+	if metadata.is_err() {
 		println!("{} Could not be parsed.", name);
 		return;
 	}
@@ -48,7 +48,14 @@ fn parse(name: &String) {
 			data.push(Data {
 				tag: e.clone(),
 				value: Some(if tag.len() > 80 {
-					truncate ( tag.as_ref(), 40).to_owned() + "..."
+					if hex::decode(&tag).is_ok() {
+						String::from_utf8(hex::decode(&tag).unwrap())
+							.unwrap_or(truncate(tag.as_ref(), 40).to_owned() + "...")
+					} else if try_string_of_bytes_to_string(&tag).is_ok() {
+						truncate(try_string_of_bytes_to_string(&tag).unwrap().as_ref(), 40).to_owned() + "...(raw)"
+					} else {
+						truncate(tag.as_ref(), 40).to_owned() + "..."
+					}
 				} else {
 					tag
 				}),
@@ -88,8 +95,8 @@ fn parse(name: &String) {
 	table
 		.set_header(vec!["Tag", "Value"])
 		.set_header(vec![name])
-		.load_preset(comfy_table::presets::UTF8_FULL)
-		.apply_modifier(comfy_table::modifiers::UTF8_ROUND_CORNERS)
+		.load_preset(comfy_table::presets::UTF8_BORDERS_ONLY)
+		//.apply_modifier(comfy_table::modifiers::UTF8_SOLID_INNER_BORDERS)
 		.set_content_arrangement(comfy_table::ContentArrangement::Dynamic)
 		.set_table_width(
 			termsize::get()
@@ -105,6 +112,19 @@ fn parse(name: &String) {
 	}
 
 	println!("{table}");
+}
+
+fn try_string_of_bytes_to_string(s: &String) -> Result<String, u8> {
+	let sep: Vec<u16> = s
+		.split_whitespace()
+		.collect::<Vec<&str>>()
+		.iter()
+		.map(|f| f.parse::<u16>().unwrap_or(f))
+		.collect();
+
+	let x = decode_utf16(sep).map(|f| f.unwrap()).collect();
+
+	Ok(x)
 }
 
 fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
@@ -133,8 +153,8 @@ struct Data {
 
 // https://stackoverflow.com/questions/38461429/how-can-i-truncate-a-string-to-have-at-most-n-characters
 fn truncate(s: &str, max_chars: usize) -> &str {
-    match s.char_indices().nth(max_chars) {
-        None => &s,
-        Some((idx, _)) => &s[..idx],
-    }
+	match s.char_indices().nth(max_chars) {
+		None => &s,
+		Some((idx, _)) => &s[..idx],
+	}
 }

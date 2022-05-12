@@ -20,7 +20,7 @@
 				}
 			},
 			"args": [
-				"images/800px-Pterois_volitans_Manado-e.jpg"
+				"/home/reee/exif-samples/jpg"
 			],
 			"cwd": "${workspaceFolder}"
 		},
