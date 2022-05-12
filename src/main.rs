@@ -120,7 +120,14 @@ fn try_string_of_bytes_to_string(s: &String) -> Result<String, u8> {
 		.collect::<Vec<&str>>();
 
 	let sep: Vec<u16> = white_space_seperated.iter()
-	.map(|f| f.parse::<u16>().unwrap())
+	.map(|f|
+		if f.parse::<u16>().is_err()
+		{
+			0u16
+		}
+		else
+		{f.parse::<u16>().unwrap()}
+	)
 	.collect();
 
 	let x = decode_utf16(sep).map(|f| f.unwrap()).collect();
@@ -134,7 +141,6 @@ fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
 		if PathBuf::from(&entry).is_file() {
 			x.push(entry)
 		} else {
-			// TODO
 			let paths = fs::read_dir(entry).unwrap();
 
 			for path in paths {
