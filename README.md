@@ -4,6 +4,7 @@
 	<a href="https://github.com/3top1a/xniffer/network"><img alt="GitHub forks" src="https://img.shields.io/github/forks/3top1a/xniffer?style=for-the-badge"></a>
 	<a href="https://github.com/3top1a/xniffer/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/3top1a/xniffer?style=for-the-badge"></a>
 	<a href="https://github.com/3top1a/xniffer/blob/main/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/3top1a/xniffer?style=for-the-badge"></a>
+	<a href="https://github.com/3top1a/xniffer/actions/workflows/rust.yml"><img alt="GitHub actions" src="https://github.com/3top1a/xniffer/actions/workflows/rust.yml/badge.svg"></a>
 	<h1><code>📃 xniffer</code></h1>
 	<h2>A simple exif sniffer written in Rust</h2>
 </div>
