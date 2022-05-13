@@ -75,11 +75,11 @@ fn parse(name: &String, show_raw: bool) {
 		.iter()
 		.map(|f| Data {
 			tag: f.to_owned(),
-			value: Some(process_tag_value(
+			value: process_tag_value(
 				meta.get_tag_string(&f)
 					.unwrap_or("Error!".to_string()),
 				show_raw,
-			)),
+			),
 		})
 		.collect();
 
@@ -106,7 +106,7 @@ fn parse(name: &String, show_raw: bool) {
 	for entry in data.clone() {
 		table.add_row(vec![
 			Cell::new(entry.tag).fg(Color::Green).add_attribute(Attribute::Italic),
-			Cell::new(entry.value.unwrap())
+			Cell::new(entry.value)
 		]);
 	}
 
@@ -170,7 +170,7 @@ fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
 #[derive(std::clone::Clone)]
 struct Data {
 	tag: String,
-	value: Option<String>,
+	value: String,
 }
 
 // https://stackoverflow.com/questions/38461429/how-can-i-truncate-a-string-to-have-at-most-n-characters
