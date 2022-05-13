@@ -62,16 +62,16 @@ fn parse(name: &String, show_raw: bool) {
 	let mut data: Vec<Data> = Vec::new();
 
 	// Exif tags
-	// TODO Immutability
-	let mut tags: Vec<String> = Vec::new();
-	if meta.has_exif() {
-		tags.append(&mut meta.get_exif_tags().unwrap());
-	};
-	if meta.has_iptc() {
-		tags.append(&mut meta.get_iptc_tags().unwrap());
-	};
-	if meta.has_xmp() {
-		tags.append(&mut meta.get_xmp_tags().unwrap());
+	// This IS ugly, but .append is a mutating method and I don't know anything better
+	let tags: Vec<String> = {
+		meta.get_exif_tags().unwrap()
+		.into_iter().chain(
+			meta.get_iptc_tags().unwrap()
+			.into_iter())
+		.into_iter().chain(
+			meta.get_xmp_tags().unwrap()
+			.into_iter())
+		.collect()
 	};
 
 	for e in tags {
