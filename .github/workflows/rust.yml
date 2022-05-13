@@ -22,7 +22,7 @@ jobs:
             toolchain: stable
             components: rustfmt
       - name: Install exiv2
-        run: sudo apt install exiv2 libgexiv2
+        run: sudo apt install exiv2 libgexiv2-2
       - name: Build
         uses: actions-rs/cargo@v1
         with:
