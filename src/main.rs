@@ -59,7 +59,6 @@ fn parse(name: &String, show_raw: bool) {
 	}
 
 	let meta = metadata.unwrap();
-	let mut data: Vec<Data> = Vec::new();
 
 	// Exif tags
 	// This IS ugly, but .append is a mutating method and I don't know anything better
@@ -74,6 +73,8 @@ fn parse(name: &String, show_raw: bool) {
 		.collect()
 	};
 
+	// TODO Refactor to imutability
+	let mut data: Vec<Data> = Vec::new();
 	for e in tags {
 		if meta.get_tag_string(&e).is_err() {
 			continue;
@@ -98,6 +99,8 @@ fn parse(name: &String, show_raw: bool) {
 		});
 	}
 
+	// TODO Refactor to imutability
+	// ? Is it even possible?
 	let mut table = Table::new();
 	table
 		.set_header(vec!["Tag", "Value"])
@@ -155,7 +158,7 @@ fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
 				x.push(path.unwrap().path().into_os_string().into_string().unwrap());
 			}
 		};
-	}
+	};
 
 	x
 }
