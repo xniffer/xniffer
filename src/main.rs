@@ -2,9 +2,8 @@ extern crate clap;
 extern crate comfy_table;
 extern crate rayon;
 
+use comfy_table::*;
 use clap::{Arg, Command};
-use colored::Colorize;
-use comfy_table::Table;
 use rayon::prelude::*;
 use std::char::decode_utf16;
 use std::error::Error;
@@ -78,7 +77,7 @@ fn parse(name: &String, show_raw: bool) {
 			tag: f.to_owned(),
 			value: Some(process_tag_value(
 				meta.get_tag_string(&f)
-					.unwrap_or("Error!".red().to_string()),
+					.unwrap_or("Error!".to_string()),
 				show_raw,
 			)),
 		})
@@ -89,7 +88,9 @@ fn parse(name: &String, show_raw: bool) {
 	let mut table = Table::new();
 	table
 		.set_header(vec!["Tag", "Value"])
-		.set_header(vec![name])
+		.set_header(vec![
+			Cell::new(name).add_attribute(Attribute::Bold)
+		])
 		.load_preset(comfy_table::presets::UTF8_BORDERS_ONLY)
 		//.apply_modifier(comfy_table::modifiers::UTF8_SOLID_INNER_BORDERS)
 		.set_content_arrangement(comfy_table::ContentArrangement::Dynamic)
@@ -104,8 +105,8 @@ fn parse(name: &String, show_raw: bool) {
 
 	for entry in data.clone() {
 		table.add_row(vec![
-			entry.tag.green().to_string(),
-			entry.value.unwrap_or(String::new()),
+			Cell::new(entry.tag).fg(Color::Green).add_attribute(Attribute::Italic),
+			Cell::new(entry.value.unwrap())
 		]);
 	}
 
@@ -116,12 +117,12 @@ fn process_tag_value(value: String, show_raw: bool) -> String {
 	if value.len() > 80 && !show_raw {
 		if hex::decode(&value).is_ok() {
 			String::from_utf8(hex::decode(&value).unwrap())
-				.unwrap_or(truncate(value.as_ref(), 40).to_owned() + &"...".yellow())
+				.unwrap_or(truncate(value.as_ref(), 40).to_owned() + "...")
 		} else if try_string_of_bytes_to_string(&value).is_ok() {
 			truncate(try_string_of_bytes_to_string(&value).unwrap().as_ref(), 40).to_owned()
-				+ &"[r]".yellow()
+				+ "[r]"
 		} else {
-			truncate(value.as_ref(), 40).to_owned() + &"...".yellow()
+			truncate(value.as_ref(), 40).to_owned() + "..."
 		}
 	} else {
 		value
