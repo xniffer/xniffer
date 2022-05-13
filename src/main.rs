@@ -63,41 +63,26 @@ fn parse(name: &String, show_raw: bool) {
 	// Exif tags
 	// This IS ugly, but .append is a mutating method and I don't know anything better
 	let tags: Vec<String> = {
-		meta.get_exif_tags().unwrap()
-		.into_iter().chain(
-			meta.get_iptc_tags().unwrap()
-			.into_iter())
-		.into_iter().chain(
-			meta.get_xmp_tags().unwrap()
-			.into_iter())
-		.collect()
+		meta.get_exif_tags()
+			.unwrap()
+			.into_iter()
+			.chain(meta.get_iptc_tags().unwrap().into_iter())
+			.into_iter()
+			.chain(meta.get_xmp_tags().unwrap().into_iter())
+			.collect()
 	};
 
-	// TODO Refactor to imutability
-	let mut data: Vec<Data> = Vec::new();
-	for e in tags {
-		if meta.get_tag_string(&e).is_err() {
-			continue;
-		}
-
-		let tag = meta.get_tag_string(&e).unwrap_or(String::new()).to_string();
-		data.push(Data {
-			tag: e.clone(),
-			value: Some(if tag.len() > 80 && !show_raw {
-				if hex::decode(&tag).is_ok() {
-					String::from_utf8(hex::decode(&tag).unwrap())
-						.unwrap_or(truncate(tag.as_ref(), 40).to_owned() + &"...".yellow())
-				} else if try_string_of_bytes_to_string(&tag).is_ok() {
-					truncate(try_string_of_bytes_to_string(&tag).unwrap().as_ref(), 40).to_owned()
-						+ &"[r]".yellow()
-				} else {
-					truncate(tag.as_ref(), 40).to_owned() + &"...".yellow()
-				}
-			} else {
-				tag
-			}),
-		});
-	}
+	let data: Vec<Data> = tags
+		.iter()
+		.map(|f| Data {
+			tag: f.to_owned(),
+			value: Some(process_tag_value(
+				meta.get_tag_string(&f)
+					.unwrap_or("Error!".red().to_string()),
+				show_raw,
+			)),
+		})
+		.collect();
 
 	// TODO Refactor to imutability
 	// ? Is it even possible?
@@ -127,6 +112,24 @@ fn parse(name: &String, show_raw: bool) {
 	println!("{table}");
 }
 
+fn process_tag_value(value: String, show_raw: bool) -> String {
+	if value.len() > 80 && !show_raw {
+		if hex::decode(&value).is_ok() {
+			String::from_utf8(hex::decode(&value).unwrap())
+				.unwrap_or(truncate(value.as_ref(), 40).to_owned() + &"...".yellow())
+		} else if try_string_of_bytes_to_string(&value).is_ok() {
+			truncate(try_string_of_bytes_to_string(&value).unwrap().as_ref(), 40).to_owned()
+				+ &"[r]".yellow()
+		} else {
+			truncate(value.as_ref(), 40).to_owned() + &"...".yellow()
+		}
+	} else {
+		value
+	}
+}
+
+// Takes a string like `85 74 69`
+// And outputs `abc`
 fn try_string_of_bytes_to_string(s: &String) -> Result<String, u8> {
 	let white_space_seperated = s.split_whitespace().collect::<Vec<&str>>();
 
@@ -158,7 +161,7 @@ fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
 				x.push(path.unwrap().path().into_os_string().into_string().unwrap());
 			}
 		};
-	};
+	}
 
 	x
 }
