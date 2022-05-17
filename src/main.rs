@@ -2,16 +2,18 @@ extern crate clap;
 extern crate comfy_table;
 extern crate rayon;
 
-use comfy_table::*;
 use clap::{Arg, Command};
 use rayon::prelude::*;
-use std::char::decode_utf16;
 use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
 
 const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
 const CARGO_PKG_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
+
+//mod tui;
+mod cli;
+mod utils;
 
 fn main() -> Result<(), Box<dyn Error>> {
 	println!("⎯⎯⎯ xniffer v{} ⎯⎯⎯", std::env!("CARGO_PKG_VERSION"));
@@ -34,6 +36,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 				.long("raw")
 				.takes_value(false),
 		)
+		.arg(
+			Arg::new("TUI")
+				.help("Activate TUI")
+				.short('t')
+				.long("tui")
+				.takes_value(false),
+		)
 		.after_help("https://github.com/3top1a/xniffer")
 		.get_matches();
 
@@ -42,19 +51,23 @@ fn main() -> Result<(), Box<dyn Error>> {
 	);
 
 	// Logic
-	files
-		.par_iter()
-		.for_each(|x| parse(x, matches.is_present("RAW")));
+
+	if matches.is_present("TUI") {
+	} else {
+		files
+			.par_iter()
+			.for_each(|file| cli::display(file.to_string(), parse(file)))
+	}
 
 	Ok(())
 }
 
-fn parse(name: &String, show_raw: bool) {
+fn parse(name: &String) -> Option<Vec<Data>> {
 	// Try
 	let metadata = rexiv2::Metadata::new_from_path(name);
 	if metadata.is_err() {
 		println!("{} Could not be parsed.", name);
-		return;
+		return None;
 	}
 
 	let meta = metadata.unwrap();
@@ -75,79 +88,11 @@ fn parse(name: &String, show_raw: bool) {
 		.iter()
 		.map(|f| Data {
 			tag: f.to_owned(),
-			value: process_tag_value(
-				meta.get_tag_string(&f)
-					.unwrap_or("Error!".to_string()),
-				show_raw,
-			),
+			value: meta.get_tag_string(&f).unwrap_or("Error!".to_string()),
 		})
 		.collect();
 
-	// TODO Refactor to imutability
-	// ? Is it even possible?
-	let mut table = Table::new();
-	table
-		.set_header(vec!["Tag", "Value"])
-		.set_header(vec![
-			Cell::new(name).add_attribute(Attribute::Bold)
-		])
-		.load_preset(comfy_table::presets::UTF8_BORDERS_ONLY)
-		//.apply_modifier(comfy_table::modifiers::UTF8_SOLID_INNER_BORDERS)
-		.set_content_arrangement(comfy_table::ContentArrangement::Dynamic)
-		.set_table_width(
-			termsize::get()
-				.unwrap_or(termsize::Size {
-					rows: 50,
-					cols: 150,
-				})
-				.cols,
-		);
-
-	for entry in data.clone() {
-		table.add_row(vec![
-			Cell::new(entry.tag).fg(Color::Green).add_attribute(Attribute::Italic),
-			Cell::new(entry.value)
-		]);
-	}
-
-	println!("{table}");
-}
-
-fn process_tag_value(value: String, show_raw: bool) -> String {
-	if value.len() > 80 && !show_raw {
-		if hex::decode(&value).is_ok() {
-			String::from_utf8(hex::decode(&value).unwrap())
-				.unwrap_or(truncate(value.as_ref(), 40).to_owned() + "...")
-		} else if try_string_of_bytes_to_string(&value).is_ok() {
-			truncate(try_string_of_bytes_to_string(&value).unwrap().as_ref(), 40).to_owned()
-				+ "[r]"
-		} else {
-			truncate(value.as_ref(), 40).to_owned() + "..."
-		}
-	} else {
-		value
-	}
-}
-
-// Takes a string like `85 74 69`
-// And outputs `abc`
-fn try_string_of_bytes_to_string(s: &String) -> Result<String, u8> {
-	let white_space_seperated = s.split_whitespace().collect::<Vec<&str>>();
-
-	let sep: Vec<u16> = white_space_seperated
-		.iter()
-		.map(|f| {
-			if f.parse::<u16>().is_err() {
-				0u16
-			} else {
-				f.parse::<u16>().unwrap()
-			}
-		})
-		.collect();
-
-	let x = decode_utf16(sep).map(|f| f.unwrap()).collect();
-
-	Ok(x)
+	Some(data)
 }
 
 fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
@@ -168,15 +113,7 @@ fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
 }
 
 #[derive(std::clone::Clone)]
-struct Data {
+pub struct Data {
 	tag: String,
 	value: String,
-}
-
-// https://stackoverflow.com/questions/38461429/how-can-i-truncate-a-string-to-have-at-most-n-characters
-fn truncate(s: &str, max_chars: usize) -> &str {
-	match s.char_indices().nth(max_chars) {
-		None => &s,
-		Some((idx, _)) => &s[..idx],
-	}
 }
