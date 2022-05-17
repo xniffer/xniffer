@@ -11,8 +11,8 @@ use std::path::PathBuf;
 const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
 const CARGO_PKG_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
-//mod tui;
 mod cli;
+mod tui;
 mod utils;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -67,6 +67,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 	// Logic
 
 	if matches.is_present("TUI") {
+		tui::display(files)
 	} else {
 		files.par_iter().for_each(|file| {
 			cli::display(

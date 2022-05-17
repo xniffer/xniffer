@@ -3,7 +3,13 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::{utils::process_tag_value, Data};
 
-pub fn display(name: String, data: Option<Vec<Data>>, show_raw: bool, show_ascii: bool, notable: bool) {
+pub fn display(
+	name: String,
+	data: Option<Vec<Data>>,
+	show_raw: bool,
+	show_ascii: bool,
+	notable: bool,
+) {
 	if data.is_none() {
 		println!("Error!");
 		return;
@@ -20,16 +26,11 @@ pub fn display(name: String, data: Option<Vec<Data>>, show_raw: bool, show_ascii
 		.collect();
 
 	// Create table
-	let preset = if notable
-	{
+	let preset = if notable {
 		comfy_table::presets::NOTHING
-	}
-	else if show_ascii
-	{
+	} else if show_ascii {
 		comfy_table::presets::ASCII_BORDERS_ONLY_CONDENSED
-	}
-	else
-	{
+	} else {
 		comfy_table::presets::UTF8_BORDERS_ONLY
 	};
 
