@@ -1,18 +1,24 @@
 use crossterm::{
-	event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
-	execute,
-	terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+	event::{self, Event as CEvent, KeyCode},
+	terminal::{disable_raw_mode, enable_raw_mode},
 };
-use std::{io, thread, time::{Duration, Instant}, sync::mpsc};
+use std::fs;
+use std::io;
+use std::sync::mpsc;
+use std::thread;
+use std::time::{Duration, Instant};
 use tui::{
 	backend::CrosstermBackend,
-	layout::{Constraint, Direction, Layout},
-	widgets::{Block, Borders, Widget},
+	layout::{Alignment, Constraint, Direction, Layout},
+	style::{Color, Modifier, Style},
+	text::{Span, Spans},
+	widgets::{
+		Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Tabs,
+	},
 	Terminal,
 };
 
 pub fn display(files: Vec<String>) {
 	// setup terminal
-	enable_raw_mode().expect("can run in raw mode");
-
+	enable_raw_mode().expect("Raw mode");
 }

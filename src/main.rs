@@ -60,12 +60,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 		.after_help("https://github.com/3top1a/xniffer")
 		.get_matches();
 
+	// Get list of all files
 	let files: Vec<String> = convert_folder_input_into_files_within(
 		matches.values_of_t("PATHS").unwrap_or_else(|e| e.exit()),
 	);
 
 	// Logic
-
 	if matches.is_present("TUI") {
 		tui::display(files)
 	} else {
@@ -136,5 +136,15 @@ fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
 #[derive(std::clone::Clone)]
 pub struct Data {
 	tag: String,
+	//value: DataType<String>,
 	value: String,
+}
+
+#[derive(std::clone::Clone)]
+enum DataType<I> {
+	String(I),
+	Number(I),
+	Ration(I),
+	Raw(I),
+	GPS([i64; 2]),
 }
