@@ -3,7 +3,7 @@ use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
 use crate::{utils::process_tag_value, Data};
 
-pub fn display(name: String, data: Option<Vec<Data>>) {
+pub fn display(name: String, data: Option<Vec<Data>>, show_raw: bool, show_ascii: bool, notable: bool) {
 	if data.is_none() {
 		println!("Error!");
 		return;
@@ -16,15 +16,28 @@ pub fn display(name: String, data: Option<Vec<Data>>) {
 		.par_iter()
 		.map(|d| d.to_owned())
 		// TODO Immutability
-		.map(|mut f| process_tag_value(&mut f, false).to_owned())
+		.map(|mut f| process_tag_value(&mut f, show_raw).to_owned())
 		.collect();
 
 	// Create table
+	let preset = if notable
+	{
+		comfy_table::presets::NOTHING
+	}
+	else if show_ascii
+	{
+		comfy_table::presets::ASCII_BORDERS_ONLY_CONDENSED
+	}
+	else
+	{
+		comfy_table::presets::UTF8_BORDERS_ONLY
+	};
+
 	let mut table = Table::new();
 	table
 		.set_header(vec!["Tag", "Value"])
 		.set_header(vec![Cell::new(name).add_attribute(Attribute::Bold)])
-		.load_preset(comfy_table::presets::UTF8_BORDERS_ONLY)
+		.load_preset(preset)
 		.set_content_arrangement(comfy_table::ContentArrangement::Dynamic)
 		.set_table_width(
 			termsize::get()

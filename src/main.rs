@@ -31,9 +31,23 @@ fn main() -> Result<(), Box<dyn Error>> {
 		)
 		.arg(
 			Arg::new("RAW")
-				.help("show raw data")
+				.help("show raw data, only for CLI")
 				.short('r')
 				.long("raw")
+				.takes_value(false),
+		)
+		.arg(
+			Arg::new("ASCII")
+				.help("show table in ascii instead of unicode, only for CLI")
+				.short('a')
+				.long("ascii")
+				.takes_value(false),
+		)
+		.arg(
+			Arg::new("NOTABLE")
+				.help("don't format the data to a table, only for CLI")
+				.short('n')
+				.long("notable")
 				.takes_value(false),
 		)
 		.arg(
@@ -54,9 +68,15 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 	if matches.is_present("TUI") {
 	} else {
-		files
-			.par_iter()
-			.for_each(|file| cli::display(file.to_string(), parse(file)))
+		files.par_iter().for_each(|file| {
+			cli::display(
+				file.to_string(),
+				parse(file),
+				matches.is_present("RAW"),
+				matches.is_present("ASCII"),
+				matches.is_present("NOTABLE"),
+			)
+		})
 	}
 
 	Ok(())
