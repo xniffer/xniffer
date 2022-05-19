@@ -11,5 +11,4 @@ comfy-table = "5.0"
 termsize = "0.1"
 hex = "0.4"
 clap = "3.1"
-crossterm = "0.23"
-tui = { version = "0.18", default-features = false, features = ['crossterm'] }
+rcui = { git = "https://github.com/tsoding/rcui.git" }

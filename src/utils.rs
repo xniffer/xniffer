@@ -1,4 +1,4 @@
-use std::char::decode_utf16;
+use std::{char::decode_utf16, path::PathBuf};
 
 use crate::Data;
 
@@ -53,4 +53,18 @@ pub fn try_string_of_bytes_to_string(s: &String) -> Result<String, u8> {
 	let x = decode_utf16(sep).map(|f| f.unwrap()).collect();
 
 	Ok(x)
+}
+
+pub fn vec_str_path_name(files: Vec<String>) -> Vec<String> {
+	files
+		.iter()
+		.map(|f| {
+			PathBuf::from(f)
+				.file_name()
+				.unwrap()
+				.to_os_string()
+				.into_string()
+				.unwrap()
+		})
+		.collect::<Vec<String>>()
 }

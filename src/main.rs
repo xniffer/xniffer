@@ -140,7 +140,14 @@ pub struct Data {
 	value: String,
 }
 
-#[derive(std::clone::Clone)]
+impl std::fmt::Display for Data {
+	#[inline]
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		std::fmt::Display::fmt(&self.value, f)
+	}
+}
+
+#[derive(std::clone::Clone, Copy)]
 enum DataType<I> {
 	String(I),
 	Number(I),
