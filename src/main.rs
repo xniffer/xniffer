@@ -3,7 +3,7 @@ extern crate comfy_table;
 extern crate rayon;
 
 use clap::{Arg, Command};
-use rayon::prelude::*;
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::error::Error;
 use std::fs;
 use std::path::PathBuf;
@@ -133,21 +133,31 @@ fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
 	x
 }
 
-#[derive(std::clone::Clone)]
+#[derive(Debug)]
 pub struct Data {
 	tag: String,
-	//value: DataType<String>,
 	value: String,
+	//value: DataType<String>,
 }
 
 impl std::fmt::Display for Data {
 	#[inline]
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		std::fmt::Display::fmt(&self.value, f)
+		write!(f, "({}, {})", self.tag, self.value)
 	}
 }
 
-#[derive(std::clone::Clone, Copy)]
+impl Clone for Data {
+	#[inline]
+	fn clone(&self) -> Self {
+		Self {
+			tag: self.tag.clone(),
+			value: self.value.clone(),
+		}
+	}
+}
+
+#[derive(Clone, Copy)]
 enum DataType<I> {
 	String(I),
 	Number(I),
