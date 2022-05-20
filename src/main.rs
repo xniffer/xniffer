@@ -12,7 +12,7 @@ const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
 const CARGO_PKG_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
 mod cli;
-mod tui;
+mod gui;
 mod utils;
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -67,7 +67,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
 	// Logic
 	if matches.is_present("TUI") {
-		tui::display(files)
+		gui::display(files)
 	} else {
 		files.par_iter().for_each(|file| {
 			cli::display(
@@ -157,6 +157,8 @@ impl Clone for Data {
 	}
 }
 
+// TODO Data type
+#[allow(dead_code)]
 #[derive(Clone, Copy)]
 enum DataType<I> {
 	String(I),

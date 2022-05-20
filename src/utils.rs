@@ -55,6 +55,7 @@ pub fn try_string_of_bytes_to_string(s: &String) -> Result<String, u8> {
 	Ok(x)
 }
 
+/*
 pub fn vec_str_path_name(files: Vec<String>) -> Vec<String> {
 	files
 		.iter()
@@ -68,3 +69,4 @@ pub fn vec_str_path_name(files: Vec<String>) -> Vec<String> {
 		})
 		.collect::<Vec<String>>()
 }
+*/
