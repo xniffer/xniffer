@@ -1,6 +1,5 @@
 use eframe::egui;
-use native_dialog::{FileDialog, MessageDialog, MessageType};
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use native_dialog::FileDialog;
 use std::path::PathBuf;
 
 #[derive(Default, Clone)]
@@ -45,41 +44,51 @@ impl Xniffer {
 impl eframe::App for Xniffer {
 	fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
 		// File selection panel
-		egui::SidePanel::new(egui::panel::Side::Left, "file_selection").show(ctx, |ui| {
-			ui.heading("Files");
-			ui.separator();
-			if ui.button("Open").clicked() {
-				let path = FileDialog::new()
-					.add_filter("PNG Image", &["png"])
-					.add_filter("JPEG Image", &["jpg", "jpeg"])
-					.add_filter("EXV Image", &["exv"])
-					.add_filter("CR2 Image", &["cr2"])
-					.add_filter("TIFF Image", &["tiff", "tif"])
-					.add_filter("DNG Image", &["dng"])
-					.add_filter("PSD Image", &["psd"])
-					.show_open_single_file()
-					.unwrap();
+		egui::SidePanel::new(egui::panel::Side::Left, "file_selection")
+			.min_width(20f32)
+			.show(ctx, |ui| {
+				ui.heading("Files");
+				ui.separator();
+				if ui.button("Open").clicked() {
+					let paths = FileDialog::new()
+						.add_filter("PNG Image", &["png"])
+						.add_filter("JPEG Image", &["jpg", "jpeg"])
+						.add_filter("EXV Image", &["exv"])
+						.add_filter("CR2 Image", &["cr2"])
+						.add_filter("TIFF Image", &["tiff", "tif"])
+						.add_filter("DNG Image", &["dng"])
+						.add_filter("PSD Image", &["psd"])
+						.show_open_multiple_file()
+						.unwrap();
 
-				if path.is_some() {
-					let path_str = path
-						.clone()
-						.unwrap()
-						.as_os_str()
-						.to_string_lossy()
-						.to_string();
+					for path in paths {
+						let path_str = path.clone().as_os_str().to_string_lossy().to_string();
 
-					self.files.push(File {
-						file_path: path.clone().unwrap(),
-						name_stim: path_str.clone(),
-						data: crate::parse(&path_str),
-					})
+						// Check for duplicates
+						if self
+							.files
+							.clone()
+							.into_iter()
+							.find_map(|f| {
+								if path == f.file_path {
+									Some(true)
+								} else {
+									None
+								}
+							})
+							.is_some()
+						{
+							continue;
+						}
+
+						self.files.push(File {
+							file_path: path.clone(),
+							name_stim: path_str.clone(),
+							data: crate::parse(&path_str),
+						})
+					}
 				}
-			}
-		});
-		egui::CentralPanel::default().show(ctx, |ui| {
-			ui.code(
-				format!("{}", self.files.len())
-			)
-		});
+			});
+		egui::CentralPanel::default().show(ctx, |ui| ui.code(format!("{}", self.files.len())));
 	}
 }
