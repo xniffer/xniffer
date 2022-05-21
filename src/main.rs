@@ -60,9 +60,13 @@ fn main() -> Result<(), Box<dyn Error>> {
 		.get_matches();
 
 	// Get list of all files
-	let files: Vec<String> = convert_folder_input_into_files_within(
-		matches.values_of_t("PATHS").unwrap_or_else(|e| e.exit()),
-	);
+	let files: Vec<String> = if matches.is_present("PATHS") {
+		convert_folder_input_into_files_within(
+			matches.values_of_t("PATHS").unwrap_or_else(|e| e.exit()),
+		)
+	} else {
+		vec![]
+	};
 
 	// Logic
 	if !matches.is_present("CLI") {

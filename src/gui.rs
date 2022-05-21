@@ -1,3 +1,4 @@
+use clipboard::{ClipboardContext, ClipboardProvider};
 use eframe::egui;
 use native_dialog::FileDialog;
 use std::{ops::Index, path::PathBuf};
@@ -39,16 +40,22 @@ struct Xniffer {
 
 impl Xniffer {
 	fn new(_cc: &eframe::CreationContext<'_>, files_in: Vec<String>) -> Self {
+		let files: Vec<File> = files_in
+			.iter()
+			.map(|file| File {
+				file_path: PathBuf::from(file),
+				name_stem: file.to_string(),
+				data: crate::parse(file),
+			})
+			.collect();
+
 		Self {
-			files: files_in
-				.iter()
-				.map(|file| File {
-					file_path: PathBuf::from(file),
-					name_stem: file.to_string(),
-					data: crate::parse(file),
-				})
-				.collect(),
-			index: None,
+			files: files.clone(),
+			index: if files.len() > 0 {
+				Some(files.len() - 1)
+			} else {
+				None
+			},
 		}
 	}
 }
@@ -63,13 +70,23 @@ impl eframe::App for Xniffer {
 				ui.heading("Files");
 				if ui.button("Open").clicked() {
 					let paths = FileDialog::new()
+						// TODO procedural way of organizing file types
+						.add_filter("Any file", &["*"])
 						.add_filter("PNG Image", &["png"])
 						.add_filter("JPEG Image", &["jpg", "jpeg"])
 						.add_filter("EXV Image", &["exv"])
-						.add_filter("CR2 Image", &["cr2"])
+						.add_filter("WebP Image", &["webp"])
 						.add_filter("TIFF Image", &["tiff", "tif"])
 						.add_filter("DNG Image", &["dng"])
 						.add_filter("PSD Image", &["psd"])
+						.add_filter("GIF Image", &["gif"])
+						.add_filter("MP4 Video", &["mp4"])
+						.add_filter("MOV Video", &["mov"])
+						.add_filter("WebM Video", &["webm"])
+						.add_filter("MP3 Audio", &["webm"])
+						.add_filter("WAV Audio", &["webm"])
+						.add_filter("M4A Audio", &["webm"])
+						.add_filter("OPUS Audio", &["webm"])
 						.show_open_multiple_file()
 						.unwrap();
 
@@ -97,25 +114,29 @@ impl eframe::App for Xniffer {
 							file_path: path,
 							name_stem: path_str.clone(),
 							data: crate::parse(&path_str),
-						})
+						});
+
+						self.index = Some(self.files.len() - 1);
 					}
 				}
 				ui.separator();
 
 				// File selection
 				egui::ScrollArea::vertical().show(ui, |ui| {
-					egui::Grid::new("some_unique_id").show(ui, |ui| {
-						for file in &self.files {
-							if ui.button(&file.name_stem).clicked() {
-								self.index = self.files.iter().position(|f| f == file);
+					egui::Grid::new("some_unique_id")
+						.striped(false)
+						.show(ui, |ui| {
+							for file in &self.files {
+								if ui.button(&file.name_stem).clicked() {
+									self.index = self.files.iter().position(|f| f == file);
+								}
+								ui.end_row()
 							}
-							ui.end_row()
-						}
-					});
+						});
 				});
 			});
 		egui::CentralPanel::default().show(ctx, |ui| {
-			ui.label(if self.index.is_some() {
+			ui.heading(if self.index.is_some() {
 				self.files.index(self.index.unwrap()).path_str()
 			} else {
 				"No file selected!".to_string()
@@ -129,13 +150,29 @@ impl eframe::App for Xniffer {
 
 					// File selection
 					egui::ScrollArea::vertical().show(ui, |ui| {
-						egui::Grid::new("some_unique_id").show(ui, |ui| {
-							for dat in data {
-								ui.label(&dat.tag);
-								ui.label(&dat.value);
-								ui.end_row()
-							}
-						});
+						egui::Grid::new("some_unique_id")
+							.striped(true)
+							.spacing([2f32, 2f32])
+							.show(ui, |ui| {
+								for dat in data {
+									// Tag
+									if ui.button("📋").clicked() {
+										let mut ctx: ClipboardContext =
+											ClipboardProvider::new().unwrap();
+										ctx.set_contents(dat.tag.clone()).unwrap();
+									}
+									ui.label(&dat.tag);
+
+									// Value
+									if ui.button("📋").clicked() {
+										let mut ctx: ClipboardContext =
+											ClipboardProvider::new().unwrap();
+										ctx.set_contents(dat.value.clone()).unwrap();
+									}
+									ui.label(&dat.value);
+									ui.end_row()
+								}
+							});
 					});
 				}
 			}
