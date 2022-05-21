@@ -24,7 +24,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 		.about("A simple exif sniffer written in Rust")
 		.arg(
 			Arg::new("PATHS")
-				.required(true)
 				.help("Specify paths")
 				.takes_value(true)
 				.multiple_values(true),
@@ -51,10 +50,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 				.takes_value(false),
 		)
 		.arg(
-			Arg::new("TUI")
-				.help("Activate TUI")
-				.short('t')
-				.long("tui")
+			Arg::new("CLI")
+				.help("use CLI")
+				.short('c')
+				.long("cli")
 				.takes_value(false),
 		)
 		.after_help("https://github.com/3top1a/xniffer")
@@ -66,7 +65,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 	);
 
 	// Logic
-	if matches.is_present("TUI") {
+	if !matches.is_present("CLI") {
 		gui::display(files)
 	} else {
 		files.par_iter().for_each(|file| {
