@@ -5,8 +5,14 @@ use std::path::PathBuf;
 #[derive(Default, Clone)]
 struct File {
 	file_path: PathBuf,
-	name_stim: String,
+	name_stem: String,
 	data: Option<std::vec::Vec<crate::Data>>,
+}
+
+impl PartialEq for File {
+    fn eq(&self, other: &Self) -> bool {
+        self.file_path == other.file_path
+    }
 }
 
 // Entry point from main.rs
@@ -22,7 +28,7 @@ pub fn display(files: Vec<String>) {
 #[derive(Default)]
 struct Xniffer {
 	files: Vec<File>,
-	index: Option<u16>,
+	index: Option<usize>,
 }
 
 impl Xniffer {
@@ -32,7 +38,7 @@ impl Xniffer {
 				.iter()
 				.map(|file| File {
 					file_path: PathBuf::from(file),
-					name_stim: file.to_string(),
+					name_stem: file.to_string(),
 					data: crate::parse(file),
 				})
 				.collect(),
@@ -47,6 +53,19 @@ impl eframe::App for Xniffer {
 		egui::SidePanel::new(egui::panel::Side::Left, "file_selection")
 			.min_width(20f32)
 			.show(ctx, |ui| {
+				egui::ScrollArea::vertical().show(ui, |ui| {
+					egui::Grid::new("some_unique_id").show(ui, |ui| {
+						for file in &self.files
+						{
+							if ui.button(&file.name_stem).clicked()
+							{
+								self.index = self.files.iter().position(|f| f == file);
+							}
+							ui.end_row()
+						}
+					});
+				});
+				// TODO Bottom
 				ui.heading("Files");
 				ui.separator();
 				if ui.button("Open").clicked() {
@@ -83,12 +102,12 @@ impl eframe::App for Xniffer {
 
 						self.files.push(File {
 							file_path: path.clone(),
-							name_stim: path_str.clone(),
+							name_stem: path_str.clone(),
 							data: crate::parse(&path_str),
 						})
 					}
 				}
 			});
-		egui::CentralPanel::default().show(ctx, |ui| ui.code(format!("{}", self.files.len())));
+		egui::CentralPanel::default().show(ctx, |ui| ui.code(format!("{}", self.index.unwrap_or(0))));
 	}
 }
