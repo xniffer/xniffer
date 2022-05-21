@@ -1,6 +1,6 @@
 use eframe::egui;
 use native_dialog::FileDialog;
-use std::path::PathBuf;
+use std::{ops::Index, path::PathBuf};
 
 #[derive(Default, Clone)]
 struct File {
@@ -10,9 +10,15 @@ struct File {
 }
 
 impl PartialEq for File {
-    fn eq(&self, other: &Self) -> bool {
-        self.file_path == other.file_path
-    }
+	fn eq(&self, other: &Self) -> bool {
+		self.file_path == other.file_path
+	}
+}
+
+impl File {
+	pub fn path_str(&self) -> String {
+		self.file_path.to_string_lossy().to_string()
+	}
 }
 
 // Entry point from main.rs
@@ -53,21 +59,8 @@ impl eframe::App for Xniffer {
 		egui::SidePanel::new(egui::panel::Side::Left, "file_selection")
 			.min_width(20f32)
 			.show(ctx, |ui| {
-				egui::ScrollArea::vertical().show(ui, |ui| {
-					egui::Grid::new("some_unique_id").show(ui, |ui| {
-						for file in &self.files
-						{
-							if ui.button(&file.name_stem).clicked()
-							{
-								self.index = self.files.iter().position(|f| f == file);
-							}
-							ui.end_row()
-						}
-					});
-				});
-				// TODO Bottom
+				// File open
 				ui.heading("Files");
-				ui.separator();
 				if ui.button("Open").clicked() {
 					let paths = FileDialog::new()
 						.add_filter("PNG Image", &["png"])
@@ -101,13 +94,51 @@ impl eframe::App for Xniffer {
 						}
 
 						self.files.push(File {
-							file_path: path.clone(),
+							file_path: path,
 							name_stem: path_str.clone(),
 							data: crate::parse(&path_str),
 						})
 					}
 				}
+				ui.separator();
+
+				// File selection
+				egui::ScrollArea::vertical().show(ui, |ui| {
+					egui::Grid::new("some_unique_id").show(ui, |ui| {
+						for file in &self.files {
+							if ui.button(&file.name_stem).clicked() {
+								self.index = self.files.iter().position(|f| f == file);
+							}
+							ui.end_row()
+						}
+					});
+				});
 			});
-		egui::CentralPanel::default().show(ctx, |ui| ui.code(format!("{}", self.index.unwrap_or(0))));
+		egui::CentralPanel::default().show(ctx, |ui| {
+			ui.label(if self.index.is_some() {
+				self.files.index(self.index.unwrap()).path_str()
+			} else {
+				"No file selected!".to_string()
+			});
+			ui.separator();
+
+			// TODO convert to guard clause patern
+			if self.index.is_some() {
+				if self.files.index(self.index.unwrap()).data.is_some() {
+					let data = self.files.index(self.index.unwrap()).data.as_ref().unwrap();
+
+					// File selection
+					egui::ScrollArea::vertical().show(ui, |ui| {
+						egui::Grid::new("some_unique_id").show(ui, |ui| {
+							for dat in data {
+								ui.label(&dat.tag);
+								ui.label(&dat.value);
+								ui.end_row()
+							}
+						});
+					});
+				}
+			}
+		});
 	}
 }
