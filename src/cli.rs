@@ -21,8 +21,7 @@ pub fn display(
 		.unwrap()
 		.par_iter()
 		.map(|d| d.to_owned())
-		// TODO Immutability
-		.map(|mut f| process_tag_value(&mut f, show_raw).to_owned())
+		.map(|f| Data {tag: f.tag, value: process_tag_value(f.value, show_raw) }  )
 		.collect();
 
 	// Create table

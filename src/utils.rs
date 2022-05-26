@@ -1,7 +1,5 @@
 use std::char::decode_utf16;
 
-use crate::Data;
-
 // https://stackoverflow.com/questions/38461429/how-can-i-truncate-a-string-to-have-at-most-n-characters
 fn truncate(s: &str, max_chars: usize) -> &str {
 	match s.char_indices().nth(max_chars) {
@@ -10,24 +8,20 @@ fn truncate(s: &str, max_chars: usize) -> &str {
 	}
 }
 
-pub fn process_tag_value(value: &mut Data, show_raw: bool) -> &mut Data {
-	if value.value.len() > 80 && !show_raw {
-		if hex::decode(&value.value).is_ok() {
-			value.value = String::from_utf8(hex::decode(&value.value).unwrap())
-				.unwrap_or(truncate(value.value.as_ref(), 40).to_owned() + "...");
-			value
-		} else if try_string_of_bytes_to_string(&value.value).is_ok() {
-			value.value = truncate(
-				try_string_of_bytes_to_string(&value.value)
+pub fn process_tag_value(value: String, show_raw: bool) -> String {
+	if value.len() > 80 && !show_raw {
+		if hex::decode(&value).is_ok() {
+			String::from_utf8(hex::decode(&value).unwrap()).unwrap() + &"[h]".to_owned()
+		} else if try_string_of_bytes_to_string(&value).is_ok() {
+			truncate(
+				try_string_of_bytes_to_string(&value)
 					.unwrap()
 					.as_ref(),
 				40,
 			)
-			.to_owned() + "[r]";
-			value
+			.to_owned() + "[r]"
 		} else {
-			value.value = truncate(value.value.as_ref(), 40).to_owned() + "...";
-			value
+			truncate(value.as_ref(), 40).to_owned() + "..."
 		}
 	} else {
 		value

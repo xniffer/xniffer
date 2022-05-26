@@ -169,7 +169,11 @@ impl eframe::App for Xniffer {
 											ClipboardProvider::new().unwrap();
 										ctx.set_contents(dat.value.clone()).unwrap();
 									}
-									ui.label(&dat.value);
+									ui.label(
+										crate::utils::process_tag_value(
+											dat.value.clone(), false
+										)
+									);
 									ui.end_row()
 								}
 							});
