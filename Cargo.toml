@@ -6,7 +6,7 @@ authors = ["3top1a <3top1a.official@gmail.com>"]
 
 [dependencies]
 rayon = "1.5"
-rexiv2 = { path ="../rexiv2" }
+rexiv2 = "0.9"
 comfy-table = "5.0"
 termsize = "0.1"
 hex = "0.4"
