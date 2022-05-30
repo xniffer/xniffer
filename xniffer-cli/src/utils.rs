@@ -13,13 +13,7 @@ pub fn process_tag_value(value: String, show_raw: bool) -> String {
 		if hex::decode(&value).is_ok() {
 			String::from_utf8(hex::decode(&value).unwrap()).unwrap() + &"[h]".to_owned()
 		} else if try_string_of_bytes_to_string(&value).is_ok() {
-			truncate(
-				try_string_of_bytes_to_string(&value)
-					.unwrap()
-					.as_ref(),
-				40,
-			)
-			.to_owned() + "[r]"
+			truncate(try_string_of_bytes_to_string(&value).unwrap().as_ref(), 40).to_owned() + "[r]"
 		} else {
 			truncate(value.as_ref(), 40).to_owned() + "..."
 		}

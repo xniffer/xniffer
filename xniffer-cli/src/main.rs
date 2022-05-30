@@ -12,7 +12,6 @@ const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
 const CARGO_PKG_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
 mod cli;
-mod gui;
 mod utils;
 
 fn main() -> Result<(), Box<dyn Error>> {

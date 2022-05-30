@@ -13,3 +13,11 @@ Cargo.lock
 # Added by cargo
 
 /target
+
+xniffer-cli/target
+xniffer-cli/Cargo.lock
+
+
+metaxata/target
+metaxata/Cargo.lock
+
