@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-	use crate::{provider::*, value::Value};
+	use crate::{data::Data, provider::Provider, value::Value};
 
 	#[test]
 	fn provider_eq() {
@@ -23,5 +23,32 @@ mod tests {
 		assert!(v1 == v3);
 		assert!(v1 != v2);
 		assert!(v1 != v4);
+	}
+
+	#[test]
+	fn data_eq() {
+		let d1 = Data {
+			tag: "Exif.Example.Tag1".to_string(),
+			value: Value::String("Example".to_string()),
+			provider: Provider::System,
+		};
+		let d2 = Data {
+			tag: "Exif.Data.Tag2".to_string(),
+			value: Value::String("Really".to_string()),
+			provider: Provider::System,
+		};
+		let d3 = Data {
+			tag: "Exif.Example.Tag1".to_string(),
+			value: Value::String("Example".to_string()),
+			provider: Provider::System,
+		};
+
+		assert!(d1 == d3);
+		assert!(d1 != d2);
+		assert!(d3 != d2);
+
+		assert!(d1.provider == d2.provider);
+		assert!(d1.value == d3.value);
+		assert!(d1.tag == d3.tag);
 	}
 }

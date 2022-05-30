@@ -4,6 +4,8 @@
 
 #[derive(Clone)]
 pub enum Provider {
+	/// Unknown, mostly a placeholder
+	Unknown,
 	/// Data from the system, mostly accessed/modified/created times
 	System,
 	/// Data from the `id3` library
@@ -24,8 +26,9 @@ impl PartialEq for Provider {
 			(Provider::Lofty, Provider::Lofty) => true,
 			(Provider::Rexif, Provider::Rexif) => true,
 			(Provider::Kamadak, Provider::Kamadak) => true,
+			(Provider::Unknown, Provider::Unknown) => true,
 			// If you want to add a custom provider, add `(Provider::a, Provider::a) => true,`
-			_ => false
+			_ => false,
 		}
 	}
 }
