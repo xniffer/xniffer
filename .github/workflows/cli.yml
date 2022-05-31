@@ -10,22 +10,46 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  build:
+  check:
+    name: Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Install toolchain
-        uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1
         with:
-            toolchain: stable
-            components: rustfmt
-      - name: Build
-        uses: actions-rs/cargo@v1
+          profile: minimal
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
         with:
-          command: build
-          args: --release --all-features
-      - name: Upload
-        uses: actions/upload-artifact@v3
+          command: check
+          args: --all-features --lib
+  check_wasm:
+    name: Check wasm32
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
         with:
-          name: Linux Release
-          path: target/release/xniffer
+          profile: minimal
+          toolchain: stable
+          override: true
+      - run: rustup target add wasm32-unknown-unknown
+      - uses: actions-rs/cargo@v1
+        with:
+          command: check
+          args: --all-features --lib --target wasm32-unknown-unknown
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --all-features --lib
