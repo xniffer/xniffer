@@ -1,7 +1,9 @@
+use std::fmt::Display;
+
 #[allow(dead_code)]
 
 /// A type representing a value with a type
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Value {
 	/// A simple string
 	///
@@ -25,4 +27,19 @@ pub enum Value {
 	/// Example:
 	/// - `Exif.Nikon3.0x00ae`: `0 0 2 0 0 0 0 0 0 0 0 0`
 	Raw(Vec<u8>),
+	/// Error
+	Error(String),
+}
+
+impl Display for Value {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		match self {
+			Value::String(v) => write!(f, "{}", v),
+			Value::Integer(v) => write!(f, "{}", v),
+			Value::Number(v) => write!(f, "{}", v),
+			Value::Time(v) => write!(f, "Unix: {}", v),
+			Value::Raw(_v) => todo!(), // TODO Display raw data
+			Value::Error(v) => write!(f, "Error! {}", v),
+		}
+	}
 }

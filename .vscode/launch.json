@@ -22,7 +22,7 @@
 			"args": [
 				"/home/reee/exif-samples/jpg/Fujifilm_FinePix_E500.jpg"
 			],
-			"cwd": "${workspaceFolder}"
+			"cwd": "${workspaceFolder}/target/"
 		},
 		{
 			"type": "lldb",

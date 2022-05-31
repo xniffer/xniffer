@@ -55,22 +55,55 @@ mod tests {
 
 	#[test]
 	fn tags_not_empty() {
-		let tags = crate::list_tags(PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg"));
+		let tags = crate::list_tags(&PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg"));
 
 		assert!(tags.is_empty() == false);
 	}
 
 	#[test]
 	fn tags_system() {
-		// There really isn't a reliable test as it's system dependent
-		let tags = crate::list_tags(PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg"));
+		let pic = PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg");
 
+		// There really isn't a reliable test as it's system dependent
+		let tags = crate::list_tags(&pic);
+
+		// Time accessed is unreliable, as on Linux it's disabled on almost every system (noatime)
 		// Time created exists
 		assert!(tags.iter().any(|i| i == "System.TimeCreated"));
 
 		// Time modified exists
 		assert!(tags.iter().any(|i| i == "System.TimeModified"));
 
-		// Time accessed is unreliable, as on linux it's disabled on almost every system
+		// Get time created
+		assert_eq!(
+			crate::get_tag(pic.clone(), "System.TimeCreated".to_string()).provider,
+			Provider::System
+		);
+		assert_ne!(
+			crate::get_tag(pic.clone(), "System.TimeCreated".to_string()).value,
+			Value::Error("Invalid tag, please report this as a bug".to_string())
+		);
+		assert_ne!(
+			crate::get_tag(pic.clone(), "System.TimeCreated".to_string()).value,
+			Value::Time(0)
+		);
+		println!(
+			"{}",
+			crate::get_tag(pic.clone(), "System.TimeCreated".to_string()).value
+		);
+
+		// Get time created
+		assert_eq!(
+			crate::get_tag(pic.clone(), "System.TimeModified".to_string()).provider,
+			Provider::System
+		);
+		assert_ne!(
+			crate::get_tag(pic.clone(), "System.TimeModified".to_string()).value,
+			Value::Error("Invalid tag, please report this as a bug".to_string())
+		);
+		assert_ne!(
+			crate::get_tag(pic.clone(), "System.TimeModified".to_string()).value,
+			Value::Time(0)
+		);
 	}
 }

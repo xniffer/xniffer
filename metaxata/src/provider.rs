@@ -2,7 +2,7 @@
 // TODO library links for docs
 /// An enum to indicate the source of data
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Provider {
 	/// Unknown, mostly a placeholder
 	Unknown,
