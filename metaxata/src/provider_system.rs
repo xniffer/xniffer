@@ -1,6 +1,16 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, time::SystemTime};
 
-pub fn get_tags(file: PathBuf) -> Vec<String> {
+/// `System` provider
+/// 
+/// Prefix: `System`
+/// 
+/// Example:
+/// - System.TimeCreated
+/// - System.TimeAccessed
+/// - System.TimeModified
+
+pub fn list_tags(file: PathBuf) -> Vec<String> {
+	// Check for error
 	if file.metadata().is_err() {
 		return vec![];
 	}
@@ -19,4 +29,12 @@ pub fn get_tags(file: PathBuf) -> Vec<String> {
 	};
 
 	data
+}
+
+pub fn get_tag(file: PathBuf, tag: String) -> String
+{
+	match &tag as &str {
+		"System.TimeCreated" => file.metadata().unwrap().created().unwrap_or(SystemTime::UNIX_EPOCH).elapsed().unwrap().as_secs_f64().to_string(),
+	    _ => "Invalid tag, please report this as a bug".to_string(),
+	}
 }

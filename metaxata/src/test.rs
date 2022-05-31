@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod tests {
-	use std::path::PathBuf;
 	use crate::{data::Data, provider::Provider, value::Value};
+	use std::path::PathBuf;
 
 	#[test]
 	fn provider_eq() {
@@ -54,9 +54,23 @@ mod tests {
 	}
 
 	#[test]
-	fn tags_system() {
-		let tags = crate::get_tags(PathBuf::from("./examples/Nikon_COOLPIX_P1.jpg").canonicalize().unwrap());
+	fn tags_not_empty() {
+		let tags = crate::list_tags(PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg"));
 
 		assert!(tags.is_empty() == false);
+	}
+
+	#[test]
+	fn tags_system() {
+		// There really isn't a reliable test as it's system dependent
+		let tags = crate::list_tags(PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg"));
+
+		// Time created exists
+		assert!(tags.iter().any(|i| i == "System.TimeCreated"));
+
+		// Time modified exists
+		assert!(tags.iter().any(|i| i == "System.TimeModified"));
+
+		// Time accessed is unreliable, as on linux it's disabled on almost every system
 	}
 }

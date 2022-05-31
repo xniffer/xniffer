@@ -11,9 +11,7 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - name: Install toolchain
@@ -21,8 +19,6 @@ jobs:
         with:
             toolchain: stable
             components: rustfmt
-      - name: Install exiv2
-        run: sudo apt install exiv2 libgexiv2-2 libgexiv2-dev
       - name: Build
         uses: actions-rs/cargo@v1
         with:
