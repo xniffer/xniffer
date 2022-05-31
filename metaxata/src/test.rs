@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+	use std::path::PathBuf;
 	use crate::{data::Data, provider::Provider, value::Value};
 
 	#[test]
@@ -50,5 +51,12 @@ mod tests {
 		assert!(d1.provider == d2.provider);
 		assert!(d1.value == d3.value);
 		assert!(d1.tag == d3.tag);
+	}
+
+	#[test]
+	fn tags_system() {
+		let tags = crate::get_tags(PathBuf::from("./examples/Nikon_COOLPIX_P1.jpg").canonicalize().unwrap());
+
+		assert!(tags.is_empty() == false);
 	}
 }

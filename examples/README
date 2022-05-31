@@ -1,0 +1,13 @@
+
+|== INFO ON TEST IMAGES ==|
+
+Unless stated otherwise, all images come from Wikipedia Commons - http://commons.wikimedia.org
+For author and license information please refer to their respective description pages.
+
+All images were scaled down using the GIMP v 2.4.5 since all we care about is the Exif info.
+Tested before and after scaling to ensure Exif data was not modified (except for 'software' field).
+
+== Filename ==                      == Wiki Filename ==
+
+= Camera Makes and Models =
+Nikon_COOLPIX_P1.jpg                Miyagikotsu-castle6861.JPG
