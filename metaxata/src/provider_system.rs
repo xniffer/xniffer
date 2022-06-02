@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, time::SystemTime};
 
 use crate::value::Value;
 
@@ -40,27 +40,27 @@ pub fn get_tag(file: PathBuf, tag: String) -> Value {
 				.unwrap()
 				.created()
 				.unwrap()
-				.elapsed()
+				.duration_since(SystemTime::UNIX_EPOCH)
 				.unwrap()
-				.as_secs(),
+				.as_secs()
 		),
 		"System.TimeAccessed" => Value::Time(
 			file.metadata()
 				.unwrap()
 				.accessed()
 				.unwrap()
-				.elapsed()
+				.duration_since(SystemTime::UNIX_EPOCH)
 				.unwrap()
-				.as_secs(),
+				.as_secs()
 		),
 		"System.TimeModified" => Value::Time(
 			file.metadata()
 				.unwrap()
 				.modified()
 				.unwrap()
-				.elapsed()
+				.duration_since(SystemTime::UNIX_EPOCH)
 				.unwrap()
-				.as_secs(),
+				.as_secs()
 		),
 		_ => Value::Error("Invalid tag, please report this as a bug".to_string()),
 	}

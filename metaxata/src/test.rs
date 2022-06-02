@@ -62,7 +62,7 @@ mod tests {
 
 	#[test]
 	fn tags_system() {
-		let pic = PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg");
+		let pic = PathBuf::from("examples/Nikon_COOLPIX_P1.jpg").canonicalize().unwrap();
 
 		// There really isn't a reliable test as it's system dependent
 		let tags = crate::list_tags(&pic);
@@ -86,10 +86,6 @@ mod tests {
 		assert_ne!(
 			crate::get_tag(pic.clone(), "System.TimeCreated".to_string()).value,
 			Value::Time(0)
-		);
-		println!(
-			"{}",
-			crate::get_tag(pic.clone(), "System.TimeCreated".to_string()).value
 		);
 
 		// Get time created
