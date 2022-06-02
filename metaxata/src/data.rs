@@ -1,4 +1,3 @@
-#[allow(dead_code)]
 use crate::provider::Provider;
 use crate::value::Value;
 

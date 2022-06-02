@@ -62,7 +62,9 @@ mod tests {
 
 	#[test]
 	fn tags_system() {
-		let pic = PathBuf::from("examples/Nikon_COOLPIX_P1.jpg").canonicalize().unwrap();
+		let pic = PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg")
+			.canonicalize()
+			.unwrap();
 
 		// There really isn't a reliable test as it's system dependent
 		let tags = crate::list_tags(&pic);
@@ -76,29 +78,29 @@ mod tests {
 
 		// Get time created
 		assert_eq!(
-			crate::get_tag(pic.clone(), "System.TimeCreated".to_string()).provider,
+			crate::get_tag(&pic, "System.TimeCreated".to_string()).provider,
 			Provider::System
 		);
 		assert_ne!(
-			crate::get_tag(pic.clone(), "System.TimeCreated".to_string()).value,
+			crate::get_tag(&pic, "System.TimeCreated".to_string()).value,
 			Value::Error("Invalid tag, please report this as a bug".to_string())
 		);
 		assert_ne!(
-			crate::get_tag(pic.clone(), "System.TimeCreated".to_string()).value,
+			crate::get_tag(&pic, "System.TimeCreated".to_string()).value,
 			Value::Time(0)
 		);
 
 		// Get time created
 		assert_eq!(
-			crate::get_tag(pic.clone(), "System.TimeModified".to_string()).provider,
+			crate::get_tag(&pic, "System.TimeModified".to_string()).provider,
 			Provider::System
 		);
 		assert_ne!(
-			crate::get_tag(pic.clone(), "System.TimeModified".to_string()).value,
+			crate::get_tag(&pic, "System.TimeModified".to_string()).value,
 			Value::Error("Invalid tag, please report this as a bug".to_string())
 		);
 		assert_ne!(
-			crate::get_tag(pic.clone(), "System.TimeModified".to_string()).value,
+			crate::get_tag(&pic, "System.TimeModified".to_string()).value,
 			Value::Time(0)
 		);
 	}

@@ -8,18 +8,25 @@ fn truncate(s: &str, max_chars: usize) -> &str {
 	}
 }
 
-pub fn process_tag_value(value: String, show_raw: bool) -> String {
-	if value.len() > 80 && !show_raw {
-		if hex::decode(&value).is_ok() {
-			String::from_utf8(hex::decode(&value).unwrap()).unwrap() + &"[h]".to_owned()
-		} else if try_string_of_bytes_to_string(&value).is_ok() {
-			truncate(try_string_of_bytes_to_string(&value).unwrap().as_ref(), 40).to_owned() + "[r]"
+pub fn process_tag_value(value: Vec<u8>, show_raw: bool) -> String {
+	if show_raw && value.len() > 20 {
+		let stringified: String = value.iter().map(|f| f.to_string()).collect();
+		if hex::decode(&stringified).is_ok() {
+			String::from_utf8(hex::decode(&stringified).unwrap()).unwrap()
 		} else {
-			truncate(value.as_ref(), 40).to_owned() + "..."
+			value.iter().map(|i| *i as char).collect()
 		}
 	} else {
-		value
+		value.iter().map(|f| f.to_string()).collect()
 	}
+
+	/*	if hex::decode(&value).is_ok() {
+		String::from_utf8(hex::decode(&value).unwrap()).unwrap() + &"[h]".to_owned()
+	} else if try_string_of_bytes_to_string(&value).is_ok() {
+		truncate(try_string_of_bytes_to_string(&value).unwrap().as_ref(), 40).to_owned() + "[r]"
+	} else {
+		truncate(value.as_ref(), 40).to_owned() + "..."
+	}*/
 }
 
 // Takes a string like `85 74 69`
