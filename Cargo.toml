@@ -1,17 +1,6 @@
-[package]
-name = "xniffer"
-version = "0.1.0"
-edition = "2021"
-authors = ["3top1a <3top1a.official@gmail.com>"]
+[workspace]
 
-[dependencies]
-rayon = "1.5"
-rexiv2 = { path ="../rexiv2" }
-comfy-table = "5.0"
-termsize = "0.1"
-hex = "0.4"
-clap = "3.1"
-egui = "0.18"
-eframe = "0.18"
-native-dialog = "0.6"
-clipboard = "0.5"
+members = [
+	"xniffer-cli",
+	"metaxata"
+]

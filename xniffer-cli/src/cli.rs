@@ -1,29 +1,8 @@
 use comfy_table::*;
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 
-use crate::{utils::process_tag_value, Data};
+use metaxata::data::Data;
 
-pub fn display(
-	name: String,
-	data: Option<Vec<Data>>,
-	show_raw: bool,
-	show_ascii: bool,
-	notable: bool,
-) {
-	if data.is_none() {
-		println!("Error!");
-		return;
-	}
-
-	// Process raw values
-	let processed_data: Vec<Data> = data
-		.to_owned()
-		.unwrap()
-		.par_iter()
-		.map(|d| d.to_owned())
-		.map(|f| Data {tag: f.tag, value: process_tag_value(f.value, show_raw) }  )
-		.collect();
-
+pub fn display(name: String, data: Vec<Data>, show_ascii: bool, notable: bool) {
 	// Create table
 	let preset = if notable {
 		comfy_table::presets::NOTHING
@@ -48,7 +27,7 @@ pub fn display(
 				.cols,
 		);
 
-	for entry in processed_data {
+	for entry in data {
 		table.add_row(vec![
 			Cell::new(&entry.tag)
 				.fg(Color::Green)

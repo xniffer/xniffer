@@ -22,7 +22,7 @@
 			"args": [
 				"/home/reee/exif-samples/jpg/Fujifilm_FinePix_E500.jpg"
 			],
-			"cwd": "${workspaceFolder}"
+			"cwd": "${workspaceFolder}/metaxata/"
 		},
 		{
 			"type": "lldb",
@@ -41,7 +41,7 @@
 				}
 			},
 			"args": [],
-			"cwd": "${workspaceFolder}"
+			"cwd": "${workspaceFolder}/metaxata"
 		}
 	]
 }
