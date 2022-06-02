@@ -1,10 +1,10 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
-use id3::TagLike;
+use other_id3::TagLike;
 
 use crate::value::Value;
 
-extern crate id3;
+extern crate id3 as other_id3;
 
 /// `ID3` provider
 ///
@@ -14,15 +14,15 @@ extern crate id3;
 /// - id3.Year
 /// - id3.Title
 
-pub fn list_tags(file: &PathBuf) -> Vec<String> {
+pub fn list_tags(file: &Path) -> Vec<String> {
 	// Check for error
-	if id3::Tag::read_from_path(file).is_err() {
+	if other_id3::Tag::read_from_path(file).is_err() {
 		return vec![];
 	}
 
 	let mut data: Vec<String> = Vec::new();
 
-	let tag = id3::Tag::read_from_path(file).unwrap();
+	let tag = other_id3::Tag::read_from_path(file).unwrap();
 	if tag.year().is_some() {
 		data.push("id3.Year".to_string());
 	}
@@ -57,35 +57,25 @@ pub fn list_tags(file: &PathBuf) -> Vec<String> {
 	data
 }
 
-pub fn get_tag(file: PathBuf, tag: String) -> Value {
-	match &tag as &str {
-		"System.TimeCreated" => Value::Time(
-			file.metadata()
-				.unwrap()
-				.created()
-				.unwrap()
-				.elapsed()
-				.unwrap()
-				.as_secs(),
-		),
-		"System.TimeAccessed" => Value::Time(
-			file.metadata()
-				.unwrap()
-				.accessed()
-				.unwrap()
-				.elapsed()
-				.unwrap()
-				.as_secs(),
-		),
-		"System.TimeModified" => Value::Time(
-			file.metadata()
-				.unwrap()
-				.modified()
-				.unwrap()
-				.elapsed()
-				.unwrap()
-				.as_secs(),
-		),
+pub fn get_tag(file: PathBuf, tag_s: String) -> Value {
+	let tag = other_id3::Tag::read_from_path(file).unwrap();
+
+	match &tag_s as &str {
+		"id3.Year" => Value::Integer(tag.year().unwrap() as i64),
+		"id3.Track" => Value::Integer(tag.track().unwrap() as i64),
+		"id3.Title" => Value::String(tag.title().unwrap().to_owned()),
+		"id3.Genre" => Value::String(tag.genre().unwrap().to_owned()),
+		"id3.Length" => Value::Integer(tag.duration().unwrap() as i64),
+		"id3.DiscNumber" => Value::Integer(tag.disc().unwrap() as i64),
+		"id3.Released" => Value::Time(timestamp_to_unix(tag.date_released().unwrap())),
+		"id3.Recorded" => Value::Time(timestamp_to_unix(tag.date_recorded().unwrap())),
+		"id3.Album" => Value::String(tag.album().unwrap().to_owned()),
+		"id3.Artist" => Value::String(tag.artist().unwrap().to_owned()),
 		_ => Value::Error("Invalid tag, please report this as a bug".to_string()),
 	}
+}
+
+// TODO Finish
+fn timestamp_to_unix(t: other_id3::Timestamp) -> u64 {
+	(t.year as u64) * (31557600) // Years
 }

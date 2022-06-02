@@ -15,7 +15,8 @@ use provider::Provider;
 pub fn list_tags(file: &PathBuf) -> Vec<String> {
 	let mut r: Vec<String> = Vec::new();
 	r.append(&mut provider_system::list_tags(file));
-	//	r.append(&mut provider_kamadak::list_tags(&file));
+	r.append(&mut provider_id3::list_tags(file));
+	//r.append(&mut provider_kamadak::list_tags(&file));
 	r
 }
 
@@ -24,6 +25,11 @@ pub fn get_tag(file: &PathBuf, tag: String) -> Data {
 		(
 			provider_system::get_tag(file, tag.clone()),
 			Provider::System,
+		)
+	} else if tag.starts_with("id3") {
+		(
+			provider_id3::get_tag(file.to_path_buf(), tag.clone()),
+			Provider::Id3,
 		)
 	} else {
 		(
