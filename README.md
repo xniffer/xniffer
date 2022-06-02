@@ -1,10 +1,10 @@
 <div id="top"></div>
 <div align="center">
-	<a href="https://github.com/3top1a/xniffer/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/3top1a/xniffer?style=for-the-badge"></a>
-	<a href="https://github.com/3top1a/xniffer/network"><img alt="GitHub forks" src="https://img.shields.io/github/forks/3top1a/xniffer?style=for-the-badge"></a>
-	<a href="https://github.com/3top1a/xniffer/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/3top1a/xniffer?style=for-the-badge"></a>
-	<a href="https://github.com/3top1a/xniffer/blob/main/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/3top1a/xniffer?style=for-the-badge"></a>
-	<a href="https://github.com/3top1a/xniffer/actions/workflows/rust.yml"><img alt="GitHub actions" src="https://github.com/xniffer/xniffer/actions/workflows/rust.yml/badge.svg"></a>
+	<a href="https://github.com/xniffer/xniffer/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/xniffer/xniffer?style=for-the-badge"></a>
+	<a href="https://github.com/xniffer/xniffer/network"><img alt="GitHub forks" src="https://img.shields.io/github/forks/xniffer/xniffer?style=for-the-badge"></a>
+	<a href="https://github.com/xniffer/xniffer/issues"><img alt="GitHub issues" src="https://img.shields.io/github/issues/xniffer/xniffer?style=for-the-badge"></a>
+	<a href="https://github.com/xniffer/xniffer/blob/main/LICENSE"><img alt="GitHub license" src="https://img.shields.io/github/license/xniffer/xniffer?style=for-the-badge"></a>
+	<a href="https://github.com/xniffer/xniffer/actions/workflows/cli.yml"><img alt="GitHub actions" src="https://github.com/xniffer/xniffer/actions/workflows/cli.yml/badge.svg"></a>
 	<h1><code>📃 xniffer</code></h1>
 	<h2>A simple exif sniffer written in Rust</h2>
 </div>
@@ -28,7 +28,7 @@ I tried using the least amount of dependencies, so that the code is simple.
 
 ### Installation
 ```bash
-git clone https://github.com/3top1a/xniffer.git
+git clone https://github.com/xniffer/xniffer.git
 cd xniffer
 cargo build --release
 ```
