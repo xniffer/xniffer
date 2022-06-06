@@ -55,53 +55,56 @@ mod tests {
 
 	#[test]
 	fn tags_not_empty() {
-		let tags = crate::list_tags(&PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg"));
+		let tags = crate::get_tags(&PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg"));
 
 		assert!(tags.is_empty() == false);
 	}
 
 	#[test]
-	fn tags_system() {
+	fn tags_system_created() {
 		let pic = PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg")
 			.canonicalize()
 			.unwrap();
 
 		// There really isn't a reliable test as it's system dependent
-		let tags = crate::list_tags(&pic);
+		let tags = crate::get_tags(&pic);
 
 		// Time accessed is unreliable, as on Linux it's disabled on almost every system (noatime)
 		// Time created exists
-		assert!(tags.iter().any(|i| i == "System.TimeCreated"));
+		assert!(tags.iter().any(|i| i.tag == "System.TimeCreated"));
+
+		// Get time created
+		let created: &Data = tags.iter().find(|f| f.tag == "System.TimeCreated").unwrap();
+		assert_eq!(created.provider, Provider::System);
+		assert_ne!(
+			created.value,
+			Value::Error("Invalid tag, please report this as a bug".to_string())
+		);
+		assert_ne!(created.value, Value::Time(0));
+	}
+
+	#[test]
+	fn tags_system_modified() {
+		let pic = PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg")
+			.canonicalize()
+			.unwrap();
+
+		// There really isn't a reliable test as it's system dependent
+		let tags = crate::get_tags(&pic);
 
 		// Time modified exists
-		assert!(tags.iter().any(|i| i == "System.TimeModified"));
+		assert!(tags.iter().any(|i| i.tag == "System.TimeModified"));
 
-		// Get time created
-		assert_eq!(
-			crate::get_tag(&pic, "System.TimeCreated".to_string()).provider,
-			Provider::System
-		);
+		// Get time modified
+		let modified: &Data = tags
+			.iter()
+			.find(|f| f.tag == "System.TimeModified")
+			.unwrap();
+		assert_eq!(modified.provider, Provider::System);
 		assert_ne!(
-			crate::get_tag(&pic, "System.TimeCreated".to_string()).value,
+			modified.value,
 			Value::Error("Invalid tag, please report this as a bug".to_string())
 		);
-		assert_ne!(
-			crate::get_tag(&pic, "System.TimeCreated".to_string()).value,
-			Value::Time(0)
-		);
-
-		// Get time created
-		assert_eq!(
-			crate::get_tag(&pic, "System.TimeModified".to_string()).provider,
-			Provider::System
-		);
-		assert_ne!(
-			crate::get_tag(&pic, "System.TimeModified".to_string()).value,
-			Value::Error("Invalid tag, please report this as a bug".to_string())
-		);
-		assert_ne!(
-			crate::get_tag(&pic, "System.TimeModified".to_string()).value,
-			Value::Time(0)
-		);
+		assert_ne!(modified.value, Value::Time(0));
 	}
 }
