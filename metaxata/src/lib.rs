@@ -12,8 +12,6 @@ use data::Data;
 
 pub fn get_tags(file: &PathBuf) -> Vec<Data> {
 	let mut data: Vec<Data> = Vec::new();
-
 	data.append(&mut provider_kamadak::get_tags(file));
-
 	data
 }

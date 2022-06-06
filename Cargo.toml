@@ -1,6 +1,6 @@
 [workspace]
 
 members = [
-	#"xniffer-cli",
+	"xniffer-cli",
 	"metaxata"
 ]

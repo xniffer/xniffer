@@ -1,4 +1,4 @@
-use std::{path::PathBuf, time::SystemTime};
+use std::{path::Path, time::SystemTime};
 
 use crate::value::Value;
 
@@ -11,7 +11,7 @@ use crate::value::Value;
 /// - System.TimeAccessed
 /// - System.TimeModified
 
-pub fn list_tags(file: &PathBuf) -> Vec<String> {
+pub fn list_tags(file: &Path) -> Vec<String> {
 	// Check for error
 	if file.metadata().is_err() {
 		return vec![];
@@ -33,7 +33,7 @@ pub fn list_tags(file: &PathBuf) -> Vec<String> {
 	data
 }
 
-pub fn get_tag(file: PathBuf, tag: String) -> Value {
+pub fn get_tag(file: &Path, tag: String) -> Value {
 	match &tag as &str {
 		"System.TimeCreated" => Value::Time(
 			file.metadata()

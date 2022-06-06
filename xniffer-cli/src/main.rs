@@ -3,6 +3,7 @@ extern crate comfy_table;
 extern crate rayon;
 
 use clap::{Arg, Command};
+use metaxata::data::Data;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::error::Error;
 use std::fs;
@@ -12,7 +13,6 @@ const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
 const CARGO_PKG_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
 mod cli;
-mod utils;
 
 fn main() -> Result<(), Box<dyn Error>> {
 	println!("⎯⎯⎯ xniffer v{} ⎯⎯⎯", std::env!("CARGO_PKG_VERSION"));
@@ -26,13 +26,6 @@ fn main() -> Result<(), Box<dyn Error>> {
 				.help("Specify paths")
 				.takes_value(true)
 				.multiple_values(true),
-		)
-		.arg(
-			Arg::new("RAW")
-				.help("show raw data, only for CLI")
-				.short('r')
-				.long("raw")
-				.takes_value(false),
 		)
 		.arg(
 			Arg::new("ASCII")
@@ -68,51 +61,27 @@ fn main() -> Result<(), Box<dyn Error>> {
 	};
 
 	// Logic
-	if !matches.is_present("CLI") {
-		gui::display(files)
-	} else {
-		files.par_iter().for_each(|file| {
-			cli::display(
-				file.to_string(),
-				parse(file),
-				matches.is_present("RAW"),
-				matches.is_present("ASCII"),
-				matches.is_present("NOTABLE"),
-			)
-		})
-	}
+	files.par_iter().for_each(|file| {
+		cli::display(
+			file.to_string(),
+			parse(file).unwrap_or_default(),
+			matches.is_present("ASCII"),
+			matches.is_present("NOTABLE"),
+		)
+	});
 
 	Ok(())
 }
 
 fn parse(name: &String) -> Option<Vec<Data>> {
-	// Try
-	let metadata = rexiv2::Metadata::new_from_path(name);
-	if metadata.is_err() {
-		println!("{} Could not be parsed.", name);
-		return None;
-	}
-
-	let meta = metadata.unwrap();
+	let path = &PathBuf::from(name);
 
 	// Exif tags
-	// This IS ugly, but .append is a mutating method and I don't know anything better
-	let tags: Vec<String> = {
-		meta.get_exif_tags()
-			.unwrap()
-			.into_iter()
-			.chain(meta.get_iptc_tags().unwrap().into_iter())
-			.into_iter()
-			.chain(meta.get_xmp_tags().unwrap().into_iter())
-			.collect()
-	};
+	let tags: Vec<String> = metaxata::list_tags(path);
 
 	let data: Vec<Data> = tags
-		.iter()
-		.map(|f| Data {
-			tag: f.to_owned(),
-			value: meta.get_tag_string(&f).unwrap_or("Error!".to_string()),
-		})
+		.par_iter()
+		.map(|tag| metaxata::get_tag(path, tag.to_string()))
 		.collect();
 
 	Some(data)
@@ -133,39 +102,4 @@ fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {
 	}
 
 	x
-}
-
-#[derive(Debug)]
-pub struct Data {
-	tag: String,
-	value: String,
-	//value: DataType<String>,
-}
-
-impl std::fmt::Display for Data {
-	#[inline]
-	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "({}, {})", self.tag, self.value)
-	}
-}
-
-impl Clone for Data {
-	#[inline]
-	fn clone(&self) -> Self {
-		Self {
-			tag: self.tag.clone(),
-			value: self.value.clone(),
-		}
-	}
-}
-
-// TODO Data type
-#[allow(dead_code)]
-#[derive(Clone, Copy)]
-enum DataType<I> {
-	String(I),
-	Number(I),
-	Ration(I),
-	Raw(I),
-	GPS([i64; 2]),
 }
