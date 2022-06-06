@@ -1,6 +1,6 @@
 use std::{path::Path, time::SystemTime};
 
-use crate::value::Value;
+use crate::{data::Data, provider::Provider, value::Value};
 
 /// `System` provider
 ///
@@ -11,23 +11,59 @@ use crate::value::Value;
 /// - System.TimeAccessed
 /// - System.TimeModified
 
-pub fn list_tags(file: &Path) -> Vec<String> {
+pub fn get_tags(file: &Path) -> Vec<Data> {
 	// Check for error
 	if file.metadata().is_err() {
 		return vec![];
 	}
 
-	let mut data: Vec<String> = Vec::new();
+	let mut data: Vec<Data> = Vec::new();
 
 	let met = file.metadata().unwrap();
 	if met.created().is_ok() {
-		data.push("System.TimeCreated".to_string())
+		data.push(Data {
+			tag: "System.TimeCreated".to_string(),
+			value: Value::Time(
+				file.metadata()
+					.unwrap()
+					.created()
+					.unwrap()
+					.duration_since(SystemTime::UNIX_EPOCH)
+					.unwrap()
+					.as_secs(),
+			),
+			provider: Provider::System,
+		})
 	};
 	if met.accessed().is_ok() {
-		data.push("System.TimeAccessed".to_string())
+		data.push(Data {
+			tag: "System.TimeAccessed".to_string(),
+			value: Value::Time(
+				file.metadata()
+					.unwrap()
+					.created()
+					.unwrap()
+					.duration_since(SystemTime::UNIX_EPOCH)
+					.unwrap()
+					.as_secs(),
+			),
+			provider: Provider::System,
+		})
 	};
 	if met.modified().is_ok() {
-		data.push("System.TimeModified".to_string())
+		data.push(Data {
+			tag: "System.TimeModified".to_string(),
+			value: Value::Time(
+				file.metadata()
+					.unwrap()
+					.created()
+					.unwrap()
+					.duration_since(SystemTime::UNIX_EPOCH)
+					.unwrap()
+					.as_secs(),
+			),
+			provider: Provider::System,
+		})
 	};
 
 	data

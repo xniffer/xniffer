@@ -64,7 +64,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 	files.par_iter().for_each(|file| {
 		cli::display(
 			file.to_string(),
-			parse(file).unwrap_or_default(),
+			parse(file),
 			matches.is_present("ASCII"),
 			matches.is_present("NOTABLE"),
 		)
@@ -73,18 +73,12 @@ fn main() -> Result<(), Box<dyn Error>> {
 	Ok(())
 }
 
-fn parse(name: &String) -> Option<Vec<Data>> {
+fn parse(name: &String) -> Vec<Data> {
 	let path = &PathBuf::from(name);
 
 	// Exif tags
-	let tags: Vec<String> = metaxata::list_tags(path);
-
-	let data: Vec<Data> = tags
-		.par_iter()
-		.map(|tag| metaxata::get_tag(path, tag.to_string()))
-		.collect();
-
-	Some(data)
+	let tags: Vec<Data> = metaxata::get_tags(path).unwrap();
+	tags
 }
 
 fn convert_folder_input_into_files_within(input: Vec<String>) -> Vec<String> {

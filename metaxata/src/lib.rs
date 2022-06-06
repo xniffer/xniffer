@@ -10,8 +10,14 @@ use std::path::PathBuf;
 
 use data::Data;
 
-pub fn get_tags(file: &PathBuf) -> Vec<Data> {
+pub fn get_tags(file: &PathBuf) -> Option<Vec<Data>> {
+	if file.is_dir()
+	{
+		return None;
+	}
+
 	let mut data: Vec<Data> = Vec::new();
-	data.append(&mut provider_kamadak::get_tags(file));
-	data
+	data.append(&mut provider_system::get_tags(file));
+	data.append(&mut provider_kamadak::get_tags(file).unwrap_or(vec![]));
+	Some(data)
 }

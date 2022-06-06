@@ -57,7 +57,7 @@ mod tests {
 	fn tags_not_empty() {
 		let tags = crate::get_tags(&PathBuf::from("../examples/Nikon_COOLPIX_P1.jpg"));
 
-		assert!(tags.is_empty() == false);
+		assert!(tags.unwrap().is_empty() == false);
 	}
 
 	#[test]
@@ -67,7 +67,7 @@ mod tests {
 			.unwrap();
 
 		// There really isn't a reliable test as it's system dependent
-		let tags = crate::get_tags(&pic);
+		let tags = crate::get_tags(&pic).unwrap();
 
 		// Time accessed is unreliable, as on Linux it's disabled on almost every system (noatime)
 		// Time created exists
@@ -90,7 +90,7 @@ mod tests {
 			.unwrap();
 
 		// There really isn't a reliable test as it's system dependent
-		let tags = crate::get_tags(&pic);
+		let tags = crate::get_tags(&pic).unwrap();
 
 		// Time modified exists
 		assert!(tags.iter().any(|i| i.tag == "System.TimeModified"));
