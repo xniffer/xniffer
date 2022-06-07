@@ -1,13 +1,6 @@
-use std::char::decode_utf16;
+//use std::char::decode_utf16;
 
-// https://stackoverflow.com/questions/38461429/how-can-i-truncate-a-string-to-have-at-most-n-characters
-fn truncate(s: &str, max_chars: usize) -> &str {
-	match s.char_indices().nth(max_chars) {
-		None => &s,
-		Some((idx, _)) => &s[..idx],
-	}
-}
-
+/*/
 pub fn process_tag_value(value: Vec<u8>, show_raw: bool) -> String {
 	if show_raw && value.len() > 20 {
 		let stringified: String = value.iter().map(|f| f.to_string()).collect();
@@ -50,7 +43,6 @@ pub fn try_string_of_bytes_to_string(s: &String) -> Result<String, u8> {
 	Ok(x)
 }
 
-/*
 pub fn vec_str_path_name(files: Vec<String>) -> Vec<String> {
 	files
 		.iter()

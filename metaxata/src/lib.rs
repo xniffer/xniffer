@@ -10,9 +10,11 @@ use std::path::PathBuf;
 
 use data::Data;
 
+const UNDESURED_BEHAVIOUR_NOTE: &str =
+	"Please report this to the metaxata's github page, with the picture for debugging purposes. ";
+
 pub fn get_tags(file: &PathBuf) -> Option<Vec<Data>> {
-	if file.is_dir()
-	{
+	if file.is_dir() {
 		return None;
 	}
 

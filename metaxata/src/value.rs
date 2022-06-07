@@ -17,6 +17,10 @@ pub enum Value {
 	Integer(i64),
 	/// 64 Bit signed float
 	Number(f64),
+	/// Ration, represented as two values.
+	///
+	/// To get the result, use `[0] / [1]`.
+	Ration([f64; 2]),
 	/// Time represented in Unix Epoch
 	///
 	/// Example:
@@ -40,9 +44,39 @@ impl Display for Value {
 			Value::Integer(v) => write!(f, "{}", v),
 			Value::Number(v) => write!(f, "{}", v),
 			Value::Time(v) => write!(f, "Unix: {}", v),
-			Value::Raw(_v) => write!(f, "RAW DATA DETECTED, THIS IS A PLANNED FEATURE"), // TODO Display raw data
-			Value::Error(v) => write!(f, "Error! {}", v),
-			Value::TODO => write!(f, "TODO spotted, please report this to the projects github")
+			Value::Raw(v) => write!(f, "{}", try_vec_8_to_string(v)), // TODO Display raw data
+			Value::Error(v) => write!(f, "Error! {}{}", crate::UNDESURED_BEHAVIOUR_NOTE, v),
+			Value::TODO => write!(f, "TODO value type"),
+			Value::Ration(v) => write!(f, "{}/{}, {}", v[0], v[1], v[0] / v[1]),
+		}
+	}
+}
+
+fn try_vec_8_to_string(val: &Vec<u8>) -> String
+{
+	if std::str::from_utf8(val).is_ok()
+	{
+		std::str::from_utf8(val).unwrap().to_string()
+	}
+	else
+	{
+		// If all else fails, print the numbers out in hex
+		val.iter().map(|f:&u8| format!("{:X}", f).to_string() ).collect::<Vec<String>>().join("")
+	}
+}
+
+impl Value {
+	/// Returns the name of the type, e.g. `String`, `Time`
+	pub fn name_to_string(&self) -> &str {
+		match self {
+			Value::String(_) => "String",
+			Value::Integer(_) => "Integer",
+			Value::Number(_) => "Number",
+			Value::Ration(_) => "Ration",
+			Value::Time(_) => "Time",
+			Value::Raw(_) => "Raw",
+			Value::Error(_) => "Error",
+			Value::TODO => "TODO",
 		}
 	}
 }

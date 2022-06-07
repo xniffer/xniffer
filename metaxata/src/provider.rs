@@ -35,16 +35,19 @@ impl PartialEq for Provider {
 	}
 }
 
-impl Display for Provider
-{
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Provider::Unknown => "Unknown",
-            Provider::System => "System",
-            Provider::Id3 => "Id3",
-            Provider::Lofty => "Lofty",
-            Provider::Rexif => "Rexif",
-            Provider::Kamadak => "Kamadak",
-        })
-    }
+impl Display for Provider {
+	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+		write!(
+			f,
+			"{}",
+			match self {
+				Provider::Unknown => "Unknown",
+				Provider::System => "System",
+				Provider::Id3 => "Id3",
+				Provider::Lofty => "Lofty",
+				Provider::Rexif => "Rexif",
+				Provider::Kamadak => "Kamadak",
+			}
+		)
+	}
 }
