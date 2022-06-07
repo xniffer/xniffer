@@ -29,13 +29,27 @@ pub fn display(name: String, data: Vec<Data>, show_ascii: bool, notable: bool) {
 
 	for entry in data {
 		table.add_row(vec![
-			Cell::new(&entry.tag)
-				.fg(Color::Green)
-				.add_attribute(Attribute::Italic),
+			Cell::new(format!(
+				"[{}] {}/{}",
+				truncate(entry.value.name_to_string(), 3),
+				entry.provider.to_string(),
+				&entry.tag
+			))
+			.fg(Color::Green)
+			.set_alignment(CellAlignment::Left)
+			.add_attribute(Attribute::Italic),
 			Cell::new(&entry.value),
 		]);
 	}
 
 	// Print
 	println!("{table}");
+}
+
+// https://stackoverflow.com/questions/38461429/how-can-i-truncate-a-string-to-have-at-most-n-characters
+fn truncate(s: &str, max_chars: usize) -> &str {
+	match s.char_indices().nth(max_chars) {
+		None => &s,
+		Some((idx, _)) => &s[..idx],
+	}
 }
