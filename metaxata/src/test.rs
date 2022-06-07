@@ -71,10 +71,10 @@ mod tests {
 
 		// Time accessed is unreliable, as on Linux it's disabled on almost every system (noatime)
 		// Time created exists
-		assert!(tags.iter().any(|i| i.tag == "System.TimeCreated"));
+		assert!(tags.iter().any(|i| i.tag == "TimeCreated"));
 
 		// Get time created
-		let created: &Data = tags.iter().find(|f| f.tag == "System.TimeCreated").unwrap();
+		let created: &Data = tags.iter().find(|f| f.tag == "TimeCreated").unwrap();
 		assert_eq!(created.provider, Provider::System);
 		assert_ne!(
 			created.value,
@@ -93,12 +93,12 @@ mod tests {
 		let tags = crate::get_tags(&pic).unwrap();
 
 		// Time modified exists
-		assert!(tags.iter().any(|i| i.tag == "System.TimeModified"));
+		assert!(tags.iter().any(|i| i.tag == "TimeModified"));
 
 		// Get time modified
 		let modified: &Data = tags
 			.iter()
-			.find(|f| f.tag == "System.TimeModified")
+			.find(|f| f.tag == "TimeModified")
 			.unwrap();
 		assert_eq!(modified.provider, Provider::System);
 		assert_ne!(
