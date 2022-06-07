@@ -29,8 +29,11 @@ pub fn display(name: String, data: Vec<Data>, show_ascii: bool, notable: bool) {
 
 	for entry in data {
 		table.add_row(vec![
-			Cell::new(&entry.tag)
+			Cell::new(
+				entry.provider.to_string() + &".".to_string() + &entry.tag
+			)
 				.fg(Color::Green)
+				.set_alignment(CellAlignment::Left)
 				.add_attribute(Attribute::Italic),
 			Cell::new(&entry.value),
 		]);

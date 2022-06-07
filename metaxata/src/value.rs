@@ -29,6 +29,8 @@ pub enum Value {
 	Raw(Vec<u8>),
 	/// Error
 	Error(String),
+	/// TODO, Mostly for developing
+	TODO,
 }
 
 impl Display for Value {
@@ -38,8 +40,9 @@ impl Display for Value {
 			Value::Integer(v) => write!(f, "{}", v),
 			Value::Number(v) => write!(f, "{}", v),
 			Value::Time(v) => write!(f, "Unix: {}", v),
-			Value::Raw(_v) => todo!(), // TODO Display raw data
+			Value::Raw(_v) => write!(f, "RAW DATA DETECTED, THIS IS A PLANNED FEATURE"), // TODO Display raw data
 			Value::Error(v) => write!(f, "Error! {}", v),
+			Value::TODO => write!(f, "TODO spotted, please report this to the projects github")
 		}
 	}
 }

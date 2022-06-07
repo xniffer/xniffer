@@ -22,7 +22,7 @@ pub fn get_tags(file: &Path) -> Vec<Data> {
 	let met = file.metadata().unwrap();
 	if met.created().is_ok() {
 		data.push(Data {
-			tag: "System.TimeCreated".to_string(),
+			tag: "TimeCreated".to_string(),
 			value: Value::Time(
 				file.metadata()
 					.unwrap()
@@ -37,7 +37,7 @@ pub fn get_tags(file: &Path) -> Vec<Data> {
 	};
 	if met.accessed().is_ok() {
 		data.push(Data {
-			tag: "System.TimeAccessed".to_string(),
+			tag: "TimeAccessed".to_string(),
 			value: Value::Time(
 				file.metadata()
 					.unwrap()
@@ -52,7 +52,7 @@ pub fn get_tags(file: &Path) -> Vec<Data> {
 	};
 	if met.modified().is_ok() {
 		data.push(Data {
-			tag: "System.TimeModified".to_string(),
+			tag: "TimeModified".to_string(),
 			value: Value::Time(
 				file.metadata()
 					.unwrap()
@@ -67,37 +67,4 @@ pub fn get_tags(file: &Path) -> Vec<Data> {
 	};
 
 	data
-}
-
-pub fn get_tag(file: &Path, tag: String) -> Value {
-	match &tag as &str {
-		"System.TimeCreated" => Value::Time(
-			file.metadata()
-				.unwrap()
-				.created()
-				.unwrap()
-				.duration_since(SystemTime::UNIX_EPOCH)
-				.unwrap()
-				.as_secs(),
-		),
-		"System.TimeAccessed" => Value::Time(
-			file.metadata()
-				.unwrap()
-				.accessed()
-				.unwrap()
-				.duration_since(SystemTime::UNIX_EPOCH)
-				.unwrap()
-				.as_secs(),
-		),
-		"System.TimeModified" => Value::Time(
-			file.metadata()
-				.unwrap()
-				.modified()
-				.unwrap()
-				.duration_since(SystemTime::UNIX_EPOCH)
-				.unwrap()
-				.as_secs(),
-		),
-		_ => Value::Error("Invalid tag, please report this as a bug".to_string()),
-	}
 }
